@@ -255,7 +255,7 @@ export default function SurveyForm({ eventId, surveyData }: { eventId: string; s
               {!stepSchema?.fields?.some((f: any) => f.type === "email" || f.label.toLowerCase().includes("email")) && (
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider mb-2 text-gray-600">
-                    Email Address * (Required for Certificate Generation)
+                    Email Address *
                   </label>
                   <input
                     type="email"
@@ -522,15 +522,54 @@ export default function SurveyForm({ eventId, surveyData }: { eventId: string; s
             </p>
             
             {certUrl && (
-              <div className="mt-8">
+              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
                 <a 
                   href={certUrl} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center rounded-2xl border-2 border-[#4285f4] text-[#4285f4] px-6 py-3 font-bold hover:bg-[#4285f4]/5 transition-colors"
+                  className="inline-flex items-center justify-center rounded-2xl border-2 border-[#4285f4] text-[#4285f4] px-6 py-3 font-bold hover:bg-[#4285f4]/5 transition-colors w-full sm:w-auto"
                 >
-                  View Public Certificate Link
+                  View Public Certificate
                 </a>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormData({
+                      gdg_id: "",
+                      email: "",
+                      isPUPian: null,
+                      personalInfo: {},
+                      evaluation: { ratings: {}, overallSatisfaction: 5 },
+                    });
+                    setAttendanceCode("");
+                    setCertUrl(null);
+                    setStep("CONSENT");
+                  }}
+                  className="inline-flex items-center justify-center rounded-2xl bg-gray-100 text-[#202124] px-6 py-3 font-bold hover:bg-gray-200 transition-colors w-full sm:w-auto"
+                >
+                  Submit Another Response
+                </button>
+              </div>
+            )}
+            {!certUrl && (
+              <div className="mt-8">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormData({
+                      gdg_id: "",
+                      email: "",
+                      isPUPian: null,
+                      personalInfo: {},
+                      evaluation: { ratings: {}, overallSatisfaction: 5 },
+                    });
+                    setAttendanceCode("");
+                    setStep("CONSENT");
+                  }}
+                  className="inline-flex items-center justify-center rounded-2xl bg-gray-100 text-[#202124] px-6 py-3 font-bold hover:bg-gray-200 transition-colors"
+                >
+                  Submit Another Response
+                </button>
               </div>
             )}
           </div>
