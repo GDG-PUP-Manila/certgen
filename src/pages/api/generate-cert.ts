@@ -2,7 +2,7 @@ import type { APIRoute } from "astro";
 import { processCertificateWorkflow } from "../../services/certificateWorkflow.service";
 
 // Simple in-memory rate limiter per Serverless instance
-const rateLimitMap = new Map<string, { count: number, resetTime: number }>();
+// const rateLimitMap = new Map<string, { count: number, resetTime: number }>();
 
 export const POST: APIRoute = async ({ request }) => {
   try {
@@ -16,19 +16,19 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     // 2. IP Rate Limiting
-    const ip = request.headers.get("x-forwarded-for") || "unknown";
-    if (ip !== "unknown") {
-      const now = Date.now();
-      const userLimit = rateLimitMap.get(ip);
-      if (userLimit && userLimit.resetTime > now) {
-        if (userLimit.count >= 5) {
-          return new Response(JSON.stringify({ error: "Too many requests. Please try again in a minute." }), { status: 429 });
-        }
-        userLimit.count++;
-      } else {
-        rateLimitMap.set(ip, { count: 1, resetTime: now + 60000 }); // strict 60s cooldown block
-      }
-    }
+    // const ip = request.headers.get("x-forwarded-for") || "unknown";
+    // if (ip !== "unknown") {
+    //   const now = Date.now();
+    //   const userLimit = rateLimitMap.get(ip);
+    //   if (userLimit && userLimit.resetTime > now) {
+    //     if (userLimit.count >= 5) {
+    //       return new Response(JSON.stringify({ error: "Too many requests. Please try again in a minute." }), { status: 429 });
+    //     }
+    //     userLimit.count++;
+    //   } else {
+    //     rateLimitMap.set(ip, { count: 1, resetTime: now + 60000 }); // strict 60s cooldown block
+    //   }
+    // }
 
     const body = await request.json();
     const { gdg_id, email, event_id, attendanceCode, survey_data } = body;
