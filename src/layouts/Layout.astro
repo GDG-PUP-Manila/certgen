@@ -6,15 +6,17 @@ interface Props {
 	title: string;
 	description?: string;
 	image?: string;
-	url?: string;
 }
 
 const { 
 	title, 
 	description = "Share your event feedback and instantly securely download your official GDG certificate of participation.",
-	image = "https://gdg-pup-manila.vercel.app/logo.png", // A fallback full URL image for social previews
-	url = "https://gdgpup.tech" 
+	image = "/logo.png", 
 } = Astro.props;
+
+// Open Graph requires absolute URLs. We dynamically construct them based on the active domain (Vercel or Localhost)
+const canonicalURL = new URL(Astro.url.pathname, Astro.site || Astro.url).href;
+const socialImageURL = new URL(image, Astro.site || Astro.url).href;
 ---
 
 <!doctype html>
@@ -32,17 +34,17 @@ const {
 
 		<!-- Open Graph / Facebook -->
 		<meta property="og:type" content="website" />
-		<meta property="og:url" content={url} />
+		<meta property="og:url" content={canonicalURL} />
 		<meta property="og:title" content={title} />
 		<meta property="og:description" content={description} />
-		<meta property="og:image" content={image} />
+		<meta property="og:image" content={socialImageURL} />
 
 		<!-- Twitter -->
 		<meta property="twitter:card" content="summary_large_image" />
-		<meta property="twitter:url" content={url} />
+		<meta property="twitter:url" content={canonicalURL} />
 		<meta property="twitter:title" content={title} />
 		<meta property="twitter:description" content={description} />
-		<meta property="twitter:image" content={image} />
+		<meta property="twitter:image" content={socialImageURL} />
 		
 		<!-- Google Fonts -->
 		<link rel="preconnect" href="https://fonts.googleapis.com">

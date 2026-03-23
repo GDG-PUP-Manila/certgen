@@ -24,17 +24,26 @@
           "options": ["Yes, I am a PUPian", "No, I am a Non-PUPian"]
         },
         {
-          "id": "PERSONAL_INFO",
-          "title": "PERSONAL INFORMATION",
+          "id": "PERSONAL_INFO_NON_PUPIAN",
+          "title": "SECTION 3 - NON-PUPIAN",
+          "description": "Please read the instructions and/or formatting guide at the sub-descriptions of specific questions.",
+          "type": "formGroup",
+          "fields": [
+            { "name": "name", "label": "Name", "placeholder": "FirstName MI. LastName (e.g., Sparky G. Lorenzo)", "type": "text", "required": true },
+            { "name": "organization", "label": "School/Organization", "type": "text", "required": true }
+          ]
+        },
+        {
+          "id": "PERSONAL_INFO_PUPIAN",
+          "title": "SECTION 4 - PUPIAN",
           "description": "Please read the instructions and/or formatting guide at the sub-descriptions of specific questions.",
           "type": "formGroup",
           "fields": [
             { "name": "gdg_id", "label": "GDG ID (Optional - If you are a registered member)", "placeholder": "e.g., GDGPUP-26-006767", "type": "text", "required": false },
             { "name": "name", "label": "Name", "placeholder": "FirstName MI. LastName (e.g., Sparky G. Lorenzo)", "type": "text", "required": true },
-            { "name": "college", "label": "College/Campus", "type": "select", "options": ["College of Accountancy and Finance (CAF)", "College of Architecture, Design and the Built Environment (CADBE)", "College of Arts and Letters (CAL)", "College of Business Administration (CBA)", "College of Communication (COC)", "College of Computer and Information Sciences (CCIS)", "College of Education (COED)", "College of Engineering (CE)", "College of Law (COL)", "College of Political Science and Public Administration (CPSPA)", "College of Social Sciences and Development (CSSD)", "College of Science (CS)", "College of Tourism, Hospitality and Transportation Management (CTHTM)", "Institute of Technology (ITECH)", "Open University System (OU)", "Laboratory High School", "Senior High School", "Alfonso", "Bansud", "Bataan", "Biñan", "Cabiao", "Calauan", "General Luna", "Leyte", "Lopez", "Maragondon", "Mulanay", "Parañaque", "Pulilan", "Quezon City", "Ragay", "Sablayan", "San Juan", "San Pedro", "Sta. Maria", "Sta. Rosa", "Sto. Tomas", "Taguig", "Unisan"], "conditional": "PUPian" },
-            { "name": "program", "label": "Program (Do Not Abbreviate)", "placeholder": "e.g., Bachelor of Science in Information Technology", "type": "text", "conditional": "PUPian" },
-            { "name": "yearLevel", "label": "Year Level", "type": "select", "options": ["First Year", "Second Year", "Third Year", "Fourth Year", "Fifth Year"], "conditional": "PUPian" },
-            { "name": "organization", "label": "School/Organization", "type": "text", "conditional": "Non-PUPian" }
+            { "name": "college", "label": "College/Campus", "type": "select", "options": ["College of Accountancy and Finance (CAF)", "College of Architecture, Design and the Built Environment (CADBE)", "College of Arts and Letters (CAL)", "College of Business Administration (CBA)", "College of Communication (COC)", "College of Computer and Information Sciences (CCIS)", "College of Education (COED)", "College of Engineering (CE)", "College of Law (COL)", "College of Political Science and Public Administration (CPSPA)", "College of Social Sciences and Development (CSSD)", "College of Science (CS)", "College of Tourism, Hospitality and Transportation Management (CTHTM)", "Institute of Technology (ITECH)", "Open University System (OU)", "Laboratory High School", "Senior High School", "Alfonso", "Bansud", "Bataan", "Biñan", "Cabiao", "Calauan", "General Luna", "Leyte", "Lopez", "Maragondon", "Mulanay", "Parañaque", "Pulilan", "Quezon City", "Ragay", "Sablayan", "San Juan", "San Pedro", "Sta. Maria", "Sta. Rosa", "Sto. Tomas", "Taguig", "Unisan"], "required": true },
+            { "name": "program", "label": "Program (Do Not Abbreviate)", "placeholder": "e.g., Bachelor of Science in Information Technology", "type": "text", "required": true },
+            { "name": "yearLevel", "label": "Year Level", "type": "select", "options": ["First Year", "Second Year", "Third Year", "Fourth Year", "Fifth Year"], "required": true }
           ]
         },
         {

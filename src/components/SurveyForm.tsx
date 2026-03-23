@@ -3,7 +3,8 @@ import React, { useState } from "react";
 type Step =
   | "CONSENT"
   | "STATUS"
-  | "PERSONAL_INFO"
+  | "PERSONAL_INFO_PUPIAN"
+  | "PERSONAL_INFO_NON_PUPIAN"
   | "EVALUATION"
   | "VERIFICATION"
   | "SUCCESS";
@@ -29,15 +30,19 @@ export default function SurveyForm({ eventId, surveyData }: { eventId: string; s
 
   const nextStep = () => {
     if (step === "CONSENT") setStep("STATUS");
-    else if (step === "STATUS") setStep("PERSONAL_INFO");
-    else if (step === "PERSONAL_INFO") setStep("EVALUATION");
+    else if (step === "STATUS") {
+      setStep(formData.isPUPian ? "PERSONAL_INFO_PUPIAN" : "PERSONAL_INFO_NON_PUPIAN");
+    }
+    else if (step === "PERSONAL_INFO_PUPIAN" || step === "PERSONAL_INFO_NON_PUPIAN") setStep("EVALUATION");
     else if (step === "EVALUATION") setStep("VERIFICATION");
   };
 
   const prevStep = () => {
     if (step === "STATUS") setStep("CONSENT");
-    else if (step === "PERSONAL_INFO") setStep("STATUS");
-    else if (step === "EVALUATION") setStep("PERSONAL_INFO");
+    else if (step === "PERSONAL_INFO_PUPIAN" || step === "PERSONAL_INFO_NON_PUPIAN") setStep("STATUS");
+    else if (step === "EVALUATION") {
+      setStep(formData.isPUPian ? "PERSONAL_INFO_PUPIAN" : "PERSONAL_INFO_NON_PUPIAN");
+    }
     else if (step === "VERIFICATION") setStep("EVALUATION");
   };
 
@@ -146,8 +151,9 @@ export default function SurveyForm({ eventId, surveyData }: { eventId: string; s
                 <button
                   key={idx}
                   onClick={() => {
-                    setFormData({ ...formData, isPUPian: idx === 0 });
-                    nextStep();
+                    const isPUPianSelected = idx === 0;
+                    setFormData({ ...formData, isPUPian: isPUPianSelected });
+                    setStep(isPUPianSelected ? "PERSONAL_INFO_PUPIAN" : "PERSONAL_INFO_NON_PUPIAN");
                   }}
                   className="group p-6 rounded-2xl border border-gray-200 hover:border-[#4285f4] text-left bg-white transition-all hover:shadow-[0_8px_20px_rgba(66,133,244,0.12)]"
                 >
@@ -167,8 +173,9 @@ export default function SurveyForm({ eventId, surveyData }: { eventId: string; s
         );
       }
 
-      case "PERSONAL_INFO": {
-        const stepSchema = getStepSchema("PERSONAL_INFO");
+      case "PERSONAL_INFO_PUPIAN":
+      case "PERSONAL_INFO_NON_PUPIAN": {
+        const stepSchema = getStepSchema(step);
         return (
           <form
             onSubmit={(e) => {
@@ -180,6 +187,9 @@ export default function SurveyForm({ eventId, surveyData }: { eventId: string; s
             <h2 className="text-2xl font-black text-[#202124]">
               {stepSchema?.title || "Personal Information"}
             </h2>
+            <h3 className="text-lg font-bold text-gray-600">
+              PERSONAL INFORMATION
+            </h3>
             {stepSchema?.description && (
               <p className="text-sm text-gray-500">{stepSchema.description}</p>
             )}
@@ -587,7 +597,7 @@ export default function SurveyForm({ eventId, surveyData }: { eventId: string; s
           { id: "EVALUATION", color: "bg-[#34a853]", idx: 3 },
           { id: "VERIFICATION", color: "bg-[#4285f4]", idx: 4 }
         ].map((segment) => {
-          const currentIdx = step === "CONSENT" ? 0 : step === "STATUS" ? 1 : step === "PERSONAL_INFO" ? 2 : step === "EVALUATION" ? 3 : step === "VERIFICATION" ? 4 : 5;
+          const currentIdx = step === "CONSENT" ? 0 : step === "STATUS" ? 1 : (step === "PERSONAL_INFO_PUPIAN" || step === "PERSONAL_INFO_NON_PUPIAN") ? 2 : step === "EVALUATION" ? 3 : step === "VERIFICATION" ? 4 : 5;
           return (
             <div key={segment.idx} className="flex-1 bg-gray-100 rounded-full overflow-hidden">
               <div 
