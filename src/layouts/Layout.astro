@@ -77,8 +77,15 @@ const socialImageURL = new URL(image, siteOrigin).href;
 		</main>
 
 		<!-- Minimal Footer -->
-		<footer class="mt-auto py-8 text-center text-[10px] md:text-sm font-medium tracking-widest uppercase text-gray-500 bg-white sm:bg-transparent">
-			Powered by GDG PUP Web Dev - <a href="https://www.linkedin.com/in/geraldberongoy/" target="_blank" class="">Gerald Berongoy </a>
+		<footer class="mt-auto py-8 flex items-center justify-center gap-3 text-center text-[10px] md:text-sm font-medium tracking-widest uppercase text-gray-500 bg-white sm:bg-transparent">
+			<div class="flex items-center gap-1.5">
+				<span class="w-2 h-2 rounded-full bg-[#4285f4]"></span>
+				<span class="w-2 h-2 rounded-full bg-[#ea4335]"></span>
+				<span class="w-2 h-2 rounded-full bg-[#fbbc04]"></span>
+				<span class="w-2 h-2 rounded-full bg-[#34a853]"></span>
+			</div>
+			<span>Powered by GDG PUP Web Development - <a href="https://www.linkedin.com/in/geraldberongoy/" target="_blank" class="hover:text-[#202124] transition-colors">Gerald Berongoy</a></span>
+
 		</footer>
 
 		<Toast client:load />
