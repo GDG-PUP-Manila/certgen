@@ -14,9 +14,10 @@ const {
 	image = "/logo.png", 
 } = Astro.props;
 
-// Open Graph requires absolute URLs. We dynamically construct them based on the active domain (Vercel or Localhost)
-const canonicalURL = new URL(Astro.url.pathname, Astro.site || Astro.url).href;
-const socialImageURL = new URL(image, Astro.site || Astro.url).href;
+// Open Graph requires absolute URLs. We explicitly point them to your production domain.
+const siteOrigin = "https://cert.gdgpup.org";
+const canonicalURL = new URL(Astro.url.pathname, siteOrigin).href;
+const socialImageURL = new URL(image, siteOrigin).href;
 ---
 
 <!doctype html>
