@@ -1,0 +1,43 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import SurveyForm from '../../components/SurveyForm';
+import eventsData from '../../../data/event.json';
+import surveysData from '../../../data/survey.json';
+
+const { slug } = Astro.params;
+
+// 1. Find the survey by slug
+const survey = surveysData.find((s: any) => s.slug === slug);
+
+// 2. Find the associated event
+const event = survey ? eventsData.find((e: any) => e.id === survey.event_id) : null;
+
+// Handle 404
+if (!survey || !event) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found'
+  });
+}
+---
+
+<Layout title={`${event.title} Survey | GDG CertGen`}>
+	<div class="max-w-3xl mx-auto py-10 px-4 md:py-16 animate-[fade-in_650ms_cubic-bezier(0.2,0.8,0.2,1)_both]">
+		<div class="text-center mb-10 space-y-4">
+			<div class="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-[0_8px_20px_rgba(17,24,39,0.06)] mb-2 border border-gray-100">
+				<img src="/logo.png" alt="GDG Logo" class="h-10 w-10" />
+			</div>
+			
+			<h1 class="text-3xl md:text-4xl font-black tracking-tight text-[#202124] px-4 leading-[1.15]">
+				{event.title}
+			</h1>
+			<p class="text-base md:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed px-4">
+				Share your thoughts, verify your attendance, and instantly download your framed certificate.
+			</p>
+		</div>
+
+		<div class="relative">
+			<SurveyForm eventId={event.id} surveyData={survey} client:load />
+		</div>
+	</div>
+</Layout>

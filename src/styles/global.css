@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f8f9fa;
+  --foreground: #202124;
+  --google-blue: #4285f4;
+  --google-red: #ea4335;
+  --google-yellow: #fbbc04;
+  --google-green: #34a853;
+  --grid-size: 48px;
+  --grid-opacity: 0.11;
+  --grid-fade-stop: 64%;
+  --grid-parallax-x: 0px;
+  --grid-parallax-y: 0px;
+}
+
+.brand-grid-bg {
+  position: relative;
+  isolation: isolate;
+  z-index: 0;
+}
+
+.brand-grid-bg > * {
+  position: relative;
+  z-index: 1;
+}
+
+.brand-grid-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--foreground) calc(var(--grid-opacity) * 100%), transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--foreground) calc(var(--grid-opacity) * 100%), transparent) 1px, transparent 1px);
+  background-size: var(--grid-size) var(--grid-size);
+  background-position: top left;
+  transform: translate3d(var(--grid-parallax-x), var(--grid-parallax-y), 0);
+  transition: transform 220ms ease-out;
+  will-change: transform;
+}
+
+.brand-grid-bg--fade::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(248, 249, 250, 0) 0%,
+    rgba(248, 249, 250, 0.35) var(--grid-fade-stop),
+    rgba(248, 249, 250, 0.72) 86%,
+    rgba(248, 249, 250, 0.9) 100%
+  );
+  transform: translate3d(calc(var(--grid-parallax-x) * 0.45), calc(var(--grid-parallax-y) * 0.45), 0);
+  transition: transform 260ms ease-out;
+  will-change: transform;
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

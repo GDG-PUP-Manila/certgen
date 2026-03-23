@@ -1,0 +1,60 @@
+---
+import '../styles/global.css';
+import Toast from '../components/Toast';
+
+interface Props {
+	title: string;
+	description?: string;
+}
+
+const { title, description = "Event Evaluation & Certificate Generator" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title}</title>
+		<meta name="description" content={description} />
+		
+		<!-- Google Fonts -->
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+	</head>
+	<body class="relative min-h-screen overflow-x-hidden bg-[#f8f9fa] font-['Outfit','Segoe_UI',sans-serif] text-[#202124] flex flex-col">
+		
+		<!-- Decorative blobs for all pages -->
+		<div class="pointer-events-none fixed inset-0 -z-20" aria-hidden="true">
+			<div class="absolute left-[12%] top-[18%] h-36 w-36 rounded-full bg-[#4285f4]/15 blur-3xl"></div>
+			<div class="absolute right-[8%] top-[12%] h-28 w-28 rounded-full bg-[#fbbc04]/12 blur-2xl"></div>
+			<div class="absolute bottom-[16%] right-[12%] h-40 w-40 rounded-full bg-[#34a853]/12 blur-3xl"></div>
+		</div>
+
+		<!-- Generic Header -->
+		<header class="sticky top-0 z-20 border-b border-gray-200/90 bg-white/85 px-4 py-3 backdrop-blur-md">
+			<div class="mx-auto w-full max-w-7xl flex items-center justify-between">
+				<a href="/" class="inline-flex items-center no-underline gap-3">
+					<img src="/logo.png" alt="GDG Logo" class="h-10 w-10 sm:h-12 sm:w-12 rounded-full shadow-sm" />
+					<span class="font-bold text-lg sm:text-xl tracking-wide text-slate-800 hidden sm:block">CertGen</span>
+				</a>
+			</div>
+		</header>
+
+		<!-- Main Content Slot -->
+		<main class="flex-grow flex flex-col relative z-10 brand-grid-bg brand-grid-bg--fade">
+			<slot />
+		</main>
+
+		<!-- Minimal Footer -->
+		<footer class="mt-auto py-8 text-center text-[10px] md:text-sm font-medium tracking-widest uppercase text-gray-500 bg-white sm:bg-transparent">
+			Powered by GDG PUP Web Dev - <a href="https://www.linkedin.com/in/geraldberongoy/" target="_blank" class="">Gerald Berongoy </a>
+		</footer>
+
+		<Toast client:load />
+	</body>
+</html>
