@@ -235,8 +235,18 @@ export default function SurveyForm({ eventId, surveyData }: { eventId: string; s
                 // Default text input
                 return (
                   <div key={idx}>
-                    <label className="block text-xs font-bold uppercase tracking-wider mb-2 text-gray-600">
-                      {field.label} {field.required && "*"}
+                    <label className="block text-xs font-bold uppercase tracking-wider mb-2 text-gray-600 flex justify-between items-center">
+                      <span>{field.label} {field.required && "*"}</span>
+                      {field.name === "gdg_id" && (
+                        <a 
+                          href="https://id.gdgpup.org" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-[#4285f4] hover:underline normal-case font-medium"
+                        >
+                          Find your ID &rarr;
+                        </a>
+                      )}
                     </label>
                     <input
                       type={isEmail ? "email" : (field.type || "text")}
