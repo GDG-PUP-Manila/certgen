@@ -23,12 +23,22 @@ export const getActiveSurveyByEventId = async (event_id: string) => {
 };
 
 export const saveSurveyResponse = async (payload: SurveyResponsePayload) => {
-  const { error } = await supabaseAdmin.from("survey_response").upsert(payload);
+  // 1. Manually check for an existing record by email and event_id
+  // This is because the database lacks a unique constraint on 'email' for ON CONFLICT to work.
+  const { data: existing } = await supabaseAdmin
+    .from("survey_response")
+    .select("id")
+    .eq("email", payload.email)
+    .eq("event_id", payload.event_id)
+    .maybeSingle();
+
+  const finalPayload = existing ? { ...payload, id: existing.id } : payload;
+
+  const { error } = await supabaseAdmin
+    .from("survey_response")
+    .upsert(finalPayload);
   
   if (error) {
-    if (error.message.includes("duplicate key") || error.message.includes("unique constraint")) {
-      throw new Error("It looks like you have already submitted an evaluation using this email address.");
-    }
     console.error("Survey insert error:", error);
     throw new Error("We encountered an issue saving your response. Please try again.");
   }
