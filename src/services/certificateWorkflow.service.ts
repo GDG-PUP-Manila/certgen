@@ -41,7 +41,11 @@ export const processCertificateWorkflow = async (data: WorkflowInput) => {
     if (member.email.toLowerCase() !== data.email.toLowerCase()) {
       throw new Error("The provided GDG ID does not match the email address.");
     }
-    displayName = member.display_name;
+    
+    // Only use database name if form name is missing
+    if (!displayName || displayName.trim() === "") {
+        displayName = member.display_name;
+    }
   }
 
   if (!displayName || displayName.trim() === "") {
