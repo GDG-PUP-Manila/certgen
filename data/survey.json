@@ -5,7 +5,7 @@
     "slug": "cosmos-2026",
     "is_active": true,    
     "attendance_code": "SparkAtCosmos",
-    "close_time": "2026-03-25T00:00:00Z",
+    "close_time": "2026-03-28T00:00:00Z",
 
     "questions_schema": {
       "version": "1.0",
