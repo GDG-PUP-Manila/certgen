@@ -57,13 +57,23 @@ export const processCertificateWorkflow = async (data: WorkflowInput) => {
     displayName = displayName.substring(0, 37) + "...";
   }
 
+  // Define Template configuration per event slug
+  let templateFilename = "base-template-optimized.jpg";
+  let textTopOffset = "290px"; 
+
+  if (survey.slug === "bwai2026-day1") {
+    templateFilename = "bwai-template-optimized.jpg"; // Your newly uploaded template
+    textTopOffset = "310px";
+  }
+
   // 4. Generate High-Res PNG
   const pngBuffer = await generateCertificate({
     displayName,
+    topOffset: textTopOffset,
   });
 
   // 5. Convert PNG to PDF
-  const pdfBuffer = await convertPngToPdf(pngBuffer);
+  const pdfBuffer = await convertPngToPdf(pngBuffer, templateFilename);
 
   // 6. Upload PDF to Storage
   const safeIdentifier = (data.gdg_id && data.gdg_id.trim() !== "") 

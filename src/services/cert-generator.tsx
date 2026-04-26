@@ -5,6 +5,7 @@ import path from "node:path";
 
 export async function generateCertificate(data: {
   displayName: string;
+  topOffset?: string;
 }) {
   // Load font
   const fontPath = path.resolve("./public/fonts/GoogleSans-Bold.ttf");
@@ -21,14 +22,14 @@ export async function generateCertificate(data: {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        justifyContent: "center",
+        justifyContent: "flex-start",
         position: "relative",
       }}
     >
       <div
         style={{
           position: "absolute",
-          top: "290px", // Align precisely above the black line in the original 1000x707 math
+          top: data.topOffset ?? "290px", // Align precisely above the black line in the original 1000x707 math
           left: "0",
           width: "100%",
           display: "flex",
