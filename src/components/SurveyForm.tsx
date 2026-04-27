@@ -6,10 +6,17 @@ type Step =
   | "PERSONAL_INFO_PUPIAN"
   | "PERSONAL_INFO_NON_PUPIAN"
   | "EVALUATION"
+  | "GCP_CREDITS"
   | "VERIFICATION"
   | "SUCCESS";
 
-export default function SurveyForm({ eventId, surveyData }: { eventId: string; surveyData?: any }) {
+export default function SurveyForm({
+  eventId,
+  surveyData,
+}: {
+  eventId: string;
+  surveyData?: any;
+}) {
   const [step, setStep] = useState<Step>("CONSENT");
   const [loading, setLoading] = useState(false);
   const [attendanceCode, setAttendanceCode] = useState("");
@@ -31,19 +38,31 @@ export default function SurveyForm({ eventId, surveyData }: { eventId: string; s
   const nextStep = () => {
     if (step === "CONSENT") setStep("STATUS");
     else if (step === "STATUS") {
-      setStep(formData.isPUPian ? "PERSONAL_INFO_PUPIAN" : "PERSONAL_INFO_NON_PUPIAN");
-    }
-    else if (step === "PERSONAL_INFO_PUPIAN" || step === "PERSONAL_INFO_NON_PUPIAN") setStep("EVALUATION");
-    else if (step === "EVALUATION") setStep("VERIFICATION");
+      setStep(
+        formData.isPUPian ? "PERSONAL_INFO_PUPIAN" : "PERSONAL_INFO_NON_PUPIAN",
+      );
+    } else if (
+      step === "PERSONAL_INFO_PUPIAN" ||
+      step === "PERSONAL_INFO_NON_PUPIAN"
+    )
+      setStep("EVALUATION");
+    else if (step === "EVALUATION") setStep("GCP_CREDITS");
+    else if (step === "GCP_CREDITS") setStep("VERIFICATION");
   };
 
   const prevStep = () => {
     if (step === "STATUS") setStep("CONSENT");
-    else if (step === "PERSONAL_INFO_PUPIAN" || step === "PERSONAL_INFO_NON_PUPIAN") setStep("STATUS");
+    else if (
+      step === "PERSONAL_INFO_PUPIAN" ||
+      step === "PERSONAL_INFO_NON_PUPIAN"
+    )
+      setStep("STATUS");
     else if (step === "EVALUATION") {
-      setStep(formData.isPUPian ? "PERSONAL_INFO_PUPIAN" : "PERSONAL_INFO_NON_PUPIAN");
-    }
-    else if (step === "VERIFICATION") setStep("EVALUATION");
+      setStep(
+        formData.isPUPian ? "PERSONAL_INFO_PUPIAN" : "PERSONAL_INFO_NON_PUPIAN",
+      );
+    } else if (step === "GCP_CREDITS") setStep("EVALUATION");
+    else if (step === "VERIFICATION") setStep("GCP_CREDITS");
   };
 
   const [certUrl, setCertUrl] = useState<string | null>(null);
@@ -51,8 +70,15 @@ export default function SurveyForm({ eventId, surveyData }: { eventId: string; s
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (attendanceCode.trim().toUpperCase() !== surveyData?.attendance_code?.toUpperCase()) {
-      window.dispatchEvent(new CustomEvent("show-toast", { detail: "Invalid Attendance Code. Please check with the organizers." }));
+    if (
+      attendanceCode.trim().toUpperCase() !==
+      surveyData?.attendance_code?.toUpperCase()
+    ) {
+      window.dispatchEvent(
+        new CustomEvent("show-toast", {
+          detail: "Invalid Attendance Code. Please check with the organizers.",
+        }),
+      );
       return;
     }
 
@@ -87,14 +113,19 @@ export default function SurveyForm({ eventId, surveyData }: { eventId: string; s
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      const downloadName = formData.gdg_id || formData.personalInfo.name?.replace(/[^a-zA-Z0-9]/g, "_") || 'guest';
+      const downloadName =
+        formData.gdg_id ||
+        formData.personalInfo.name?.replace(/[^a-zA-Z0-9]/g, "_") ||
+        "guest";
       a.download = `GDG-Certificate-${downloadName}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
       setStep("SUCCESS");
     } catch (err: any) {
-      window.dispatchEvent(new CustomEvent("show-toast", { detail: err.message }));
+      window.dispatchEvent(
+        new CustomEvent("show-toast", { detail: err.message }),
+      );
     } finally {
       setLoading(false);
     }
@@ -118,7 +149,9 @@ export default function SurveyForm({ eventId, surveyData }: { eventId: string; s
               </div>
             </div>
 
-            <h2 className="text-lg font-black text-[#202124]">Data Privacy Policy</h2>
+            <h2 className="text-lg font-black text-[#202124]">
+              Data Privacy Policy
+            </h2>
             <div className="bg-gray-50 border border-gray-200 p-6 rounded-2xl text-sm leading-relaxed overflow-y-auto max-h-64 text-gray-700 whitespace-pre-wrap">
               {stepSchema?.policy}
             </div>
@@ -153,7 +186,11 @@ export default function SurveyForm({ eventId, surveyData }: { eventId: string; s
                   onClick={() => {
                     const isPUPianSelected = idx === 0;
                     setFormData({ ...formData, isPUPian: isPUPianSelected });
-                    setStep(isPUPianSelected ? "PERSONAL_INFO_PUPIAN" : "PERSONAL_INFO_NON_PUPIAN");
+                    setStep(
+                      isPUPianSelected
+                        ? "PERSONAL_INFO_PUPIAN"
+                        : "PERSONAL_INFO_NON_PUPIAN",
+                    );
                   }}
                   className="group p-6 rounded-2xl border border-gray-200 hover:border-[#4285f4] text-left bg-white transition-all hover:shadow-[0_8px_20px_rgba(66,133,244,0.12)]"
                 >
@@ -197,11 +234,15 @@ export default function SurveyForm({ eventId, surveyData }: { eventId: string; s
             <div className="space-y-5">
               {stepSchema?.fields?.map((field: any, idx: number) => {
                 // Conditional Logic Check based on isPUPian boolean
-                if (field.conditional === "PUPian" && !formData.isPUPian) return null;
-                if (field.conditional === "Non-PUPian" && formData.isPUPian) return null;
+                if (field.conditional === "PUPian" && !formData.isPUPian)
+                  return null;
+                if (field.conditional === "Non-PUPian" && formData.isPUPian)
+                  return null;
 
                 // Special handling for the email field if they decide to add it back, but let's strictly use UI state mapping
-                const isEmail = field.type === "email" || field.label.toLowerCase().includes("email");
+                const isEmail =
+                  field.type === "email" ||
+                  field.label.toLowerCase().includes("email");
                 const isGdgId = field.name === "gdg_id";
 
                 if (field.type === "select") {
@@ -217,7 +258,10 @@ export default function SurveyForm({ eventId, surveyData }: { eventId: string; s
                         onChange={(e) =>
                           setFormData({
                             ...formData,
-                            personalInfo: { ...formData.personalInfo, [field.name]: e.target.value },
+                            personalInfo: {
+                              ...formData.personalInfo,
+                              [field.name]: e.target.value,
+                            },
                           })
                         }
                       >
@@ -236,11 +280,13 @@ export default function SurveyForm({ eventId, surveyData }: { eventId: string; s
                 return (
                   <div key={idx}>
                     <label className="block text-xs font-bold uppercase tracking-wider mb-2 text-gray-600 flex justify-between items-center">
-                      <span>{field.label} {field.required && "*"}</span>
+                      <span>
+                        {field.label} {field.required && "*"}
+                      </span>
                       {field.name === "gdg_id" && (
-                        <a 
-                          href="https://id.gdgpup.org" 
-                          target="_blank" 
+                        <a
+                          href="https://id.gdgpup.org"
+                          target="_blank"
                           rel="noopener noreferrer"
                           className="text-[#4285f4] hover:underline normal-case font-medium"
                         >
@@ -249,10 +295,16 @@ export default function SurveyForm({ eventId, surveyData }: { eventId: string; s
                       )}
                     </label>
                     <input
-                      type={isEmail ? "email" : (field.type || "text")}
+                      type={isEmail ? "email" : field.type || "text"}
                       required={field.required}
                       className="w-full px-5 py-3.5 rounded-2xl bg-gray-50 border border-gray-200 outline-none focus:ring-2 focus:ring-[#4285f4]/50 focus:bg-white transition-all text-[#202124]"
-                      value={isEmail ? formData.email : isGdgId ? formData.gdg_id : (formData.personalInfo[field.name] || "")}
+                      value={
+                        isEmail
+                          ? formData.email
+                          : isGdgId
+                            ? formData.gdg_id
+                            : formData.personalInfo[field.name] || ""
+                      }
                       onChange={(e) => {
                         if (isEmail) {
                           setFormData({ ...formData, email: e.target.value });
@@ -261,7 +313,10 @@ export default function SurveyForm({ eventId, surveyData }: { eventId: string; s
                         } else {
                           setFormData({
                             ...formData,
-                            personalInfo: { ...formData.personalInfo, [field.name]: e.target.value },
+                            personalInfo: {
+                              ...formData.personalInfo,
+                              [field.name]: e.target.value,
+                            },
                           });
                         }
                       }}
@@ -272,7 +327,10 @@ export default function SurveyForm({ eventId, surveyData }: { eventId: string; s
               })}
 
               {/* Force an email capture if the schema doesn't provide it, as the backend requires it for the core unique ID tracking */}
-              {!stepSchema?.fields?.some((f: any) => f.type === "email" || f.label.toLowerCase().includes("email")) && (
+              {!stepSchema?.fields?.some(
+                (f: any) =>
+                  f.type === "email" || f.label.toLowerCase().includes("email"),
+              ) && (
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider mb-2 text-gray-600">
                     Email Address *
@@ -282,7 +340,9 @@ export default function SurveyForm({ eventId, surveyData }: { eventId: string; s
                     required
                     className="w-full px-5 py-3.5 rounded-2xl bg-gray-50 border border-gray-200 outline-none focus:ring-2 focus:ring-[#4285f4]/50 focus:bg-white transition-all text-[#202124]"
                     value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
                     placeholder="name@example.com"
                   />
                 </div>
@@ -328,7 +388,12 @@ export default function SurveyForm({ eventId, surveyData }: { eventId: string; s
               });
 
               if (missingRating) {
-                window.dispatchEvent(new CustomEvent("show-toast", { detail: "Please complete all 1-5 rating questions before proceeding." }));
+                window.dispatchEvent(
+                  new CustomEvent("show-toast", {
+                    detail:
+                      "Please complete all 1-5 rating questions before proceeding.",
+                  }),
+                );
                 return;
               }
 
@@ -345,7 +410,6 @@ export default function SurveyForm({ eventId, surveyData }: { eventId: string; s
 
             <div className="space-y-6">
               {stepSchema?.fields?.map((field: any, idx: number) => {
-                
                 if (field.type === "rating_grid") {
                   return (
                     <div key={idx} className="space-y-4">
@@ -380,7 +444,7 @@ export default function SurveyForm({ eventId, surveyData }: { eventId: string; s
                                         },
                                       })
                                     }
-                                    title={field.columns?.[n-1] || String(n)}
+                                    title={field.columns?.[n - 1] || String(n)}
                                     className={`aspect-square sm:w-14 sm:h-14 sm:aspect-auto flex items-center justify-center rounded-[14px] sm:rounded-[16px] text-lg sm:text-xl font-black transition-all duration-200 shadow-sm ${
                                       formData.evaluation.ratings[rowKey] === n
                                         ? "bg-[#4285f4] text-white shadow-[0_4px_16px_rgba(66,133,244,0.35)] scale-[1.05]"
@@ -401,20 +465,29 @@ export default function SurveyForm({ eventId, surveyData }: { eventId: string; s
 
                 if (field.type === "slider") {
                   return (
-                    <div key={idx} className="space-y-4 pt-4 border-t border-gray-100">
+                    <div
+                      key={idx}
+                      className="space-y-4 pt-4 border-t border-gray-100"
+                    >
                       <div>
                         <label className="block text-sm sm:text-base font-bold uppercase tracking-wider mb-4 text-[#202124]">
                           {field.label}
                         </label>
                         <div className="grid grid-cols-5 sm:flex sm:flex-wrap gap-2.5">
-                          {Array.from({ length: (field.max - field.min + 1) }, (_, i) => i + field.min).map((n) => (
+                          {Array.from(
+                            { length: field.max - field.min + 1 },
+                            (_, i) => i + field.min,
+                          ).map((n) => (
                             <button
                               key={`slider-${n}`}
                               type="button"
                               onClick={() =>
                                 setFormData({
                                   ...formData,
-                                  evaluation: { ...formData.evaluation, [field.name]: n },
+                                  evaluation: {
+                                    ...formData.evaluation,
+                                    [field.name]: n,
+                                  },
                                 })
                               }
                               className={`aspect-square sm:w-14 sm:h-14 sm:aspect-auto flex items-center justify-center rounded-[16px] text-lg sm:text-xl font-black transition-all duration-200 shadow-sm ${
@@ -448,7 +521,10 @@ export default function SurveyForm({ eventId, surveyData }: { eventId: string; s
                         onChange={(e) =>
                           setFormData({
                             ...formData,
-                            evaluation: { ...formData.evaluation, [field.name]: e.target.value },
+                            evaluation: {
+                              ...formData.evaluation,
+                              [field.name]: e.target.value,
+                            },
                           })
                         }
                         rows={3}
@@ -481,6 +557,45 @@ export default function SurveyForm({ eventId, surveyData }: { eventId: string; s
         );
       }
 
+      case "GCP_CREDITS": {
+        const stepSchema = getStepSchema("GCP_CREDITS");
+        return (
+          <div className="space-y-6 animate-[fade-in_300ms_both]">
+            <h2 className="text-2xl font-black text-[#202124]">
+              {stepSchema?.title || "Did you claim Google Cloud credits?"}
+            </h2>
+            <div className="grid grid-cols-1 gap-4">
+              {stepSchema?.options?.map((opt: string, idx: number) => (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    setFormData({
+                      ...formData,
+                      personalInfo: {
+                        ...formData.personalInfo,
+                        gcp_credits: opt,
+                      },
+                    });
+                    nextStep();
+                  }}
+                  className="group p-6 rounded-2xl border border-gray-200 hover:border-[#4285f4] text-left bg-white transition-all hover:shadow-[0_8px_20px_rgba(66,133,244,0.12)]"
+                >
+                  <div className="font-bold text-lg text-[#202124] group-hover:text-[#4285f4]">
+                    {opt}
+                  </div>
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={prevStep}
+              className="w-full text-center text-sm font-semibold text-gray-500 hover:text-[#202124] transition-colors mt-4"
+            >
+              &larr; Go Back
+            </button>
+          </div>
+        );
+      }
+
       case "VERIFICATION":
         return (
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -489,7 +604,8 @@ export default function SurveyForm({ eventId, surveyData }: { eventId: string; s
                 Almost there!
               </h2>
               <p className="text-gray-600">
-                Please enter the Attendance Code provided during the event to claim your certificate.
+                Please enter the Attendance Code provided during the event to
+                claim your certificate.
               </p>
             </div>
 
@@ -531,21 +647,33 @@ export default function SurveyForm({ eventId, surveyData }: { eventId: string; s
         return (
           <div className="text-center py-10 space-y-6 animate-[fade-in_500ms_cubic-bezier(0.2,0.8,0.2,1)_both]">
             <div className="w-20 h-20 bg-[#34a853] text-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-[0_8px_20px_rgba(52,168,83,0.32)]">
-              <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
+              <svg
+                className="w-10 h-10"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="3"
+                  d="M5 13l4 4L19 7"
+                ></path>
               </svg>
             </div>
             <h2 className="text-3xl font-black text-[#202124]">Success!</h2>
             <p className="text-gray-600">
-              Your evaluation has been recorded and your certificate has been generated and downloaded.
-              Thank you for attending <strong>{surveyData?.slug?.toUpperCase() || 'this event'}</strong>!
+              Your evaluation has been recorded and your certificate has been
+              generated and downloaded. Thank you for attending{" "}
+              <strong>{surveyData?.slug?.toUpperCase() || "this event"}</strong>
+              !
             </p>
-            
+
             {certUrl && (
               <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-                <a 
-                  href={certUrl} 
-                  target="_blank" 
+                <a
+                  href={certUrl}
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center rounded-2xl border-2 border-[#4285f4] text-[#4285f4] px-6 py-3 font-bold hover:bg-[#4285f4]/5 transition-colors w-full sm:w-auto"
                 >
@@ -605,12 +733,30 @@ export default function SurveyForm({ eventId, surveyData }: { eventId: string; s
           { id: "STATUS", color: "bg-[#ea4335]", idx: 1 },
           { id: "PERSONAL_INFO", color: "bg-[#fbbc04]", idx: 2 },
           { id: "EVALUATION", color: "bg-[#34a853]", idx: 3 },
-          { id: "VERIFICATION", color: "bg-[#4285f4]", idx: 4 }
+          { id: "GCP_CREDITS", color: "bg-[#fbbc04]", idx: 4 },
+          { id: "VERIFICATION", color: "bg-[#4285f4]", idx: 5 },
         ].map((segment) => {
-          const currentIdx = step === "CONSENT" ? 0 : step === "STATUS" ? 1 : (step === "PERSONAL_INFO_PUPIAN" || step === "PERSONAL_INFO_NON_PUPIAN") ? 2 : step === "EVALUATION" ? 3 : step === "VERIFICATION" ? 4 : 5;
+          const currentIdx =
+            step === "CONSENT"
+              ? 0
+              : step === "STATUS"
+                ? 1
+                : step === "PERSONAL_INFO_PUPIAN" ||
+                    step === "PERSONAL_INFO_NON_PUPIAN"
+                  ? 2
+                  : step === "EVALUATION"
+                    ? 3
+                    : step === "GCP_CREDITS"
+                      ? 4
+                      : step === "VERIFICATION"
+                        ? 5
+                        : 6;
           return (
-            <div key={segment.idx} className="flex-1 bg-gray-100 rounded-full overflow-hidden">
-              <div 
+            <div
+              key={segment.idx}
+              className="flex-1 bg-gray-100 rounded-full overflow-hidden"
+            >
+              <div
                 className={`h-full ${segment.color} transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)]`}
                 style={{ width: currentIdx >= segment.idx ? "100%" : "0%" }}
               />

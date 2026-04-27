@@ -22,6 +22,19 @@ export const getActiveSurveyByEventId = async (event_id: string) => {
   return survey;
 };
 
+export const getSurveyBySlug = async (slug: string) => {
+  const { data: survey, error } = await supabaseAdmin
+    .from("survey")
+    .select("*")
+    .eq("slug", slug)
+    .single();
+
+  if (error || !survey) {
+    return null;
+  }
+  return survey;
+};
+
 export const saveSurveyResponse = async (payload: SurveyResponsePayload) => {
   // 1. Manually check for an existing record by email and event_id
   // This is because the database lacks a unique constraint on 'email' for ON CONFLICT to work.
@@ -37,9 +50,11 @@ export const saveSurveyResponse = async (payload: SurveyResponsePayload) => {
   const { error } = await supabaseAdmin
     .from("survey_response")
     .upsert(finalPayload);
-  
+
   if (error) {
     console.error("Survey insert error:", error);
-    throw new Error("We encountered an issue saving your response. Please try again.");
+    throw new Error(
+      "We encountered an issue saving your response. Please try again.",
+    );
   }
 };

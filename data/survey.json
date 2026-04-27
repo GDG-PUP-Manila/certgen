@@ -383,6 +383,12 @@
               "type": "textarea"
             }
           ]
+        },
+        {
+          "id": "GCP_CREDITS",
+          "title": "Did you claim Google Cloud credits?",
+          "type": "selection",
+          "options": ["Yes", "No"]
         }
       ]
     }

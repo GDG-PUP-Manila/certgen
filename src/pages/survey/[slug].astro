@@ -1,19 +1,38 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import SurveyForm from '../../components/SurveyForm';
-import eventsData from '../../../data/event.json';
-import surveysData from '../../../data/survey.json';
+import { getSurveyBySlug } from '../../repositories/survey.repository';
+import { getEventById } from '../../repositories/event.repository';
 
 const { slug } = Astro.params;
 
+if (!slug) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found'
+  });
+}
+
 // 1. Find the survey by slug
-const survey = surveysData.find((s: any) => s.slug === slug);
+const survey = await getSurveyBySlug(slug as string);
+
+if (!survey) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found'
+  });
+}
 
 // 2. Find the associated event
-const event = survey ? eventsData.find((e: any) => e.id === survey.event_id) : null;
+let event = null;
+try {
+  event = await getEventById(survey.event_id);
+} catch (error) {
+  console.error("Failed to load event:", error);
+}
 
 // Handle 404
-if (!survey || !event) {
+if (!event) {
   return new Response(null, {
     status: 404,
     statusText: 'Not found'
