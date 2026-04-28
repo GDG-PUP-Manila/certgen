@@ -35,6 +35,19 @@ export const getSurveyBySlug = async (slug: string) => {
   return survey;
 };
 
+export const getAllSurveys = async () => {
+  const { data: surveys, error } = await supabaseAdmin
+    .from("survey")
+    .select("*");
+
+  if (error) {
+    console.error("Failed to fetch surveys:", error);
+    return [];
+  }
+
+  return surveys;
+};
+
 export const saveSurveyResponse = async (payload: SurveyResponsePayload) => {
   // 1. Manually check for an existing record by email and event_id
   // This is because the database lacks a unique constraint on 'email' for ON CONFLICT to work.

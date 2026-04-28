@@ -1,7 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import eventsData from '../../data/event.json';
-import surveysData from '../../data/survey.json';
+import { getAllSurveys } from '../repositories/survey.repository';
+
+// Fetch surveys from backend so we get the dynamic slugs for the active events
+const surveysData = await getAllSurveys();
 
 // Type inference to ensure safety
 type Event = {

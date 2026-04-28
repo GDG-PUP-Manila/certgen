@@ -1,6 +1,9 @@
 import { getMemberById } from "../repositories/member.repository";
 import { getEventById } from "../repositories/event.repository";
-import { saveSurveyResponse, getActiveSurveyByEventId } from "../repositories/survey.repository";
+import {
+  saveSurveyResponse,
+  getActiveSurveyByEventId,
+} from "../repositories/survey.repository";
 import { uploadCertificate } from "../repositories/storage.repository";
 import { convertPngToPdf } from "./pdf.service";
 import { generateCertificate } from "./cert-generator";
@@ -25,12 +28,19 @@ export const processCertificateWorkflow = async (data: WorkflowInput) => {
   }
 
   if (survey.close_time && new Date() > new Date(survey.close_time)) {
-    throw new Error("This survey has expired and is no longer accepting responses.");
+    throw new Error(
+      "This survey has expired and is no longer accepting responses.",
+    );
   }
 
   // 3. Validate Code against Database
-  if (data.attendanceCode.trim().toUpperCase() !== survey.attendance_code?.toUpperCase()) {
-    throw new Error("The attendance code you entered is invalid. Please check with the organizers.");
+  if (
+    data.attendanceCode.trim().toUpperCase() !==
+    survey.attendance_code?.toUpperCase()
+  ) {
+    throw new Error(
+      "The attendance code you entered is invalid. Please check with the organizers.",
+    );
   }
 
   let displayName = data.survey_data?.personalInfo?.name;
@@ -41,10 +51,10 @@ export const processCertificateWorkflow = async (data: WorkflowInput) => {
     if (member.email.toLowerCase() !== data.email.toLowerCase()) {
       throw new Error("The provided GDG ID does not match the email address.");
     }
-    
+
     // Only use database name if form name is missing
     if (!displayName || displayName.trim() === "") {
-        displayName = member.display_name;
+      displayName = member.display_name;
     }
   }
 
@@ -59,10 +69,13 @@ export const processCertificateWorkflow = async (data: WorkflowInput) => {
 
   // Define Template configuration per event slug
   let templateFilename = "base-template-optimized.jpg";
-  let textTopOffset = "290px"; 
+  let textTopOffset = "290px";
 
   if (survey.slug === "bwai2026-day1") {
     templateFilename = "bwai-template-optimized.jpg"; // Your newly uploaded template
+    textTopOffset = "310px";
+  } else if (survey.slug === "bwai2026-day2") {
+    templateFilename = "bwai2026-day2-optimized.jpg";
     textTopOffset = "310px";
   }
 
@@ -76,16 +89,17 @@ export const processCertificateWorkflow = async (data: WorkflowInput) => {
   const pdfBuffer = await convertPngToPdf(pngBuffer, templateFilename);
 
   // 6. Upload PDF to Storage
-  const safeIdentifier = (data.gdg_id && data.gdg_id.trim() !== "") 
-    ? data.gdg_id 
-    : data.email.replace(/[^a-zA-Z0-9]/g, "_");
-    
+  const safeIdentifier =
+    data.gdg_id && data.gdg_id.trim() !== ""
+      ? data.gdg_id
+      : data.email.replace(/[^a-zA-Z0-9]/g, "_");
+
   const fileName = `certificates/${data.event_id}/${safeIdentifier}.pdf`;
   const publicUrl = await uploadCertificate(fileName, pdfBuffer);
 
   // 8. Save Survey Response
   await saveSurveyResponse({
-    gdg_id: (data.gdg_id && data.gdg_id.trim() !== "") ? data.gdg_id : null,
+    gdg_id: data.gdg_id && data.gdg_id.trim() !== "" ? data.gdg_id : null,
     email: data.email,
     survey_id: survey.id,
     event_id: data.event_id,
@@ -96,6 +110,6 @@ export const processCertificateWorkflow = async (data: WorkflowInput) => {
   return {
     pdfBuffer,
     publicUrl,
-    safeIdentifier
+    safeIdentifier,
   };
 };

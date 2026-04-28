@@ -46,8 +46,9 @@ export default function SurveyForm({
       step === "PERSONAL_INFO_NON_PUPIAN"
     )
       setStep("EVALUATION");
-    else if (step === "EVALUATION") setStep("GCP_CREDITS");
-    else if (step === "GCP_CREDITS") setStep("VERIFICATION");
+    else if (step === "EVALUATION") {
+      setStep(getStepSchema("GCP_CREDITS") ? "GCP_CREDITS" : "VERIFICATION");
+    } else if (step === "GCP_CREDITS") setStep("VERIFICATION");
   };
 
   const prevStep = () => {
@@ -62,7 +63,9 @@ export default function SurveyForm({
         formData.isPUPian ? "PERSONAL_INFO_PUPIAN" : "PERSONAL_INFO_NON_PUPIAN",
       );
     } else if (step === "GCP_CREDITS") setStep("EVALUATION");
-    else if (step === "VERIFICATION") setStep("GCP_CREDITS");
+    else if (step === "VERIFICATION") {
+      setStep(getStepSchema("GCP_CREDITS") ? "GCP_CREDITS" : "EVALUATION");
+    }
   };
 
   const [certUrl, setCertUrl] = useState<string | null>(null);
