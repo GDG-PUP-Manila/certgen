@@ -13,7 +13,7 @@ type Event = {
 };
 
 // Filter out past events if needed, for MVP we just show all
-const events: Event[] = eventsData;
+const events = eventsData as Event[];
 ---
 
 <Layout 

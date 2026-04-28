@@ -2,7 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import SurveyForm from '../../components/SurveyForm';
 import { getSurveyBySlug } from '../../repositories/survey.repository';
-import { getEventById } from '../../repositories/event.repository';
+import eventsData from '../../../data/event.json';
 
 const { slug } = Astro.params;
 
@@ -24,12 +24,7 @@ if (!survey) {
 }
 
 // 2. Find the associated event
-let event = null;
-try {
-  event = await getEventById(survey.event_id);
-} catch (error) {
-  console.error("Failed to load event:", error);
-}
+let event = eventsData.find((e: any) => e.id === survey.event_id);
 
 // Handle 404
 if (!event) {
@@ -38,6 +33,11 @@ if (!event) {
     statusText: 'Not found'
   });
 }
+
+// 3. Check if the survey is closed based on time or active flag
+const now = new Date();
+const closeTime = survey.close_time ? new Date(survey.close_time) : null;
+const isClosed = !survey.is_active || (closeTime && now > closeTime);
 ---
 
 <Layout 
@@ -54,12 +54,24 @@ if (!event) {
 				{event.title}
 			</h1>
 			<p class="text-base md:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed px-4">
-				Share your thoughts, verify your attendance, and instantly download your framed certificate.
-			</p>
-		</div>
+                                {isClosed 
+                                  ? "This survey has already concluded. Thank you for your interest."
+                                  : "Share your thoughts, verify your attendance, and instantly download your framed certificate."
+                                }
+                        </p>
+                </div>
 
-		<div class="relative">
-			<SurveyForm eventId={event.id} surveyData={survey} client:load />
-		</div>
-	</div>
-</Layout>
+                <div class="relative">
+                        {isClosed ? (
+                          <div class="bg-gray-50 border border-gray-200 rounded-3xl p-10 text-center shadow-sm">
+                            <h2 class="text-2xl font-bold text-gray-900 mb-3">Survey is Closed</h2>
+                            <p class="text-gray-600 font-medium">
+                              We are no longer accepting responses for this event survey. If you believe this is a mistake, please reach out to the organizers.
+                            </p>
+                            <a href="/" class="inline-flex items-center justify-center px-6 py-3 mt-6 text-sm font-semibold text-white transition-all bg-[#4285f4] hover:bg-[#3367d6] rounded-xl">
+                              Back to Events
+                            </a>
+                          </div>
+                        ) : (
+                          <SurveyForm eventId={event.id} surveyData={survey} client:load />
+                        )}
