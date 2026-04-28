@@ -28,5 +28,20 @@
     "attendance_points": 0,
     "attendees_count": 0,
     "gdg_event_id": 122588
+  },
+  {
+    "id": "53704e23-6671-45d0-80e6-aa7776eb7af6",
+    "created_at": "2026-04-26 16:45:13.564611+00",
+    "updated_at": "2026-04-26 16:45:13.564611+00",
+    "creator_id": null,
+    "title": "Build with AI: Polytechnic University of the Philippines DAY 2",
+    "description": "Join us for an exciting hybrid event - \"Build with AI: Polytechnic University of the Philippines\". Dive into the world of artificial intelligence and discover how to leverage tools like Notion, Gamma, Vertex, IoT, and Antigravity to create groundbreaking solutions. This is your chance to learn from the best, collaborate with peers, and enhance your skillset in the field of AI.",
+    "category": null,
+    "start_date": "2026-04-29 02:30:00+00",
+    "end_date": "2026-04-29 09:30:00+00",
+    "venue": "YSPACES - Virtual Office | Coworking Space | Office and Event Space, Corner 11th Avenue, Taguig, NCR, PH, 1635",
+    "attendance_points": 0,
+    "attendees_count": 0,
+    "gdg_event_id": 122588
   }
 ]
