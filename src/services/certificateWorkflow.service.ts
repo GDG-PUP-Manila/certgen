@@ -70,6 +70,7 @@ export const processCertificateWorkflow = async (data: WorkflowInput) => {
   // Define Template configuration per event slug
   let templateFilename = "base-template-optimized.jpg";
   let textTopOffset = "290px";
+  let textColor = "#1e293b";
 
   if (survey.slug === "bwai2026-day1") {
     templateFilename = "bwai-template-optimized.jpg"; // Your newly uploaded template
@@ -77,12 +78,17 @@ export const processCertificateWorkflow = async (data: WorkflowInput) => {
   } else if (survey.slug === "bwai2026-day2") {
     templateFilename = "bwai2026-day2-optimized.jpg";
     textTopOffset = "310px";
+  } else if (survey.slug === "pm-workshop") {
+    templateFilename = "pm-workshop-optimized.jpg";
+    textTopOffset = "290px";
+    textColor = "#073b1a";
   }
 
   // 4. Generate High-Res PNG
   const pngBuffer = await generateCertificate({
     displayName,
     topOffset: textTopOffset,
+    textColor,
   });
 
   // 5. Convert PNG to PDF

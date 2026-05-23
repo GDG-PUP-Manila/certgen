@@ -7,13 +7,15 @@ async function runTest() {
   console.log("Generating certificate PNG...");
   
   // You can change the topOffset here to test different values
-  const textTopOffset = "310px";
-  const templateFilename = "bwai-template-optimized.jpg";
+  const textTopOffset = "290px";
+  const textColor = "#073b1a";
+  const templateFilename = "pm-workshop-optimized.jpg";
   const displayName = "Juan Dela Cruz";
 
   const pngBuffer = await generateCertificate({
     displayName,
     topOffset: textTopOffset,
+    textColor,
   });
 
   console.log("Converting to PDF...");
