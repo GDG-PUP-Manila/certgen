@@ -2,6 +2,7 @@
   "name": "certgen",
   "type": "module",
   "version": "0.0.1",
+  "author": "Gerald S. Berongoy (https://github.com/geraldsberongoy)",
   "engines": {
     "node": ">=22.12.0"
   },
@@ -9,7 +10,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "test:pdf": "npx --yes tsx test/test-pdf.ts"
   },
   "dependencies": {
     "@astrojs/react": "^5.0.1",
