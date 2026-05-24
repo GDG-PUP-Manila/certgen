@@ -1,0 +1,29 @@
+---
+description: Supabase schema, migrations, and repository patterns
+globs: src/repositories/**,docs/sql/**,supabase/**
+alwaysApply: false
+---
+
+# Database
+
+Repositories are the **only** layer that talks to Supabase. Use `supabaseAdmin` from `src/lib/supabase.ts`.
+
+## Canonical migration
+
+`docs/sql/migrations/SURVEY_MIGRATION.sql` — creates `survey` and `survey_response` with RLS. Code expects `survey_id` on responses.
+
+Run order: migrations → seeds. See [docs/sql/README.md](../../docs/sql/README.md).
+
+## Key tables
+
+- `event` — platform-wide; referenced by `event_id`
+- `survey` — per-event config (`slug`, `attendance_code`, `questions_schema`, `is_active`, `close_time`)
+- `survey_response` — upserted by email + event_id (no unique DB constraint; app checks first)
+
+## Adding a survey
+
+1. Seed row in Supabase (`docs/sql/seeds/`)
+2. Mirror schema in `data/survey.json`
+3. Match `event_id` UUIDs to `data/event.json`
+
+Do not call Supabase from components or Astro pages.

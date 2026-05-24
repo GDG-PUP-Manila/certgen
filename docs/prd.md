@@ -156,7 +156,7 @@ Manual certificate distribution is slow, error-prone, and does not scale across 
 ## 10. Documentation
 
 - [Docs index](README.md)
-- [SDD](sdd.md) · [Design](design.md) · [SQL scripts](sql/README.md)
+- [SDD](sdd.md) · [Design](design.md) · [QA](qa.md) · [SQL scripts](sql/README.md)
 
 ---
 

@@ -91,6 +91,8 @@ docs/                        # Project documentation + SQL migrations
 
 ### `POST /api/generate-cert`
 
+> **Canonical contract:** [docs/api/generate-cert.md](api/generate-cert.md) — request/response shapes, error messages, workflow steps.
+
 **Handler:** `src/pages/api/generate-cert.ts`
 
 #### Request

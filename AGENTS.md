@@ -104,6 +104,8 @@ npm run test:pdf                     # generate test/output/test-output.pdf
 node test/stress-test.mjs            # load test (hits production)
 ```
 
+Full QA checklists: [docs/qa.md](docs/qa.md).
+
 ## Code Style
 
 - TypeScript strict mode; match existing patterns in surrounding files.
@@ -124,7 +126,11 @@ When updating docs, prefer **code over older README sections**:
 ## Related Docs
 
 - [Docs index](docs/README.md)
+- [CONTRIBUTING.md](CONTRIBUTING.md) — PR checklist, new-event workflow
+- [API: generate-cert](docs/api/generate-cert.md) — endpoint contract
+- [QA](docs/qa.md) — test plans & release checklist
 - [PRD](docs/prd.md) — product requirements
 - [SDD](docs/sdd.md) — software design
 - [Design](docs/design.md) — UI and certificate design system
 - [SQL scripts](docs/sql/README.md) — migrations, seeds, schema
+- [`.cursor/rules/`](.cursor/rules/) — Cursor agent rules (core, survey, cert pipeline, database, qa)

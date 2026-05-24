@@ -1,0 +1,31 @@
+---
+description: SurveyForm schema-driven step conventions
+globs: src/components/SurveyForm.tsx,src/pages/survey/**,data/survey.json
+alwaysApply: false
+---
+
+# Survey Form
+
+Schema-driven from `questions_schema.steps` in Supabase / `data/survey.json`.
+
+## Hardcoded step IDs
+
+`CONSENT` → `STATUS` → `PERSONAL_INFO_PUPIAN` | `PERSONAL_INFO_NON_PUPIAN` → `EVALUATION` → `GCP_CREDITS` (optional) → `VERIFICATION` → `SUCCESS`
+
+- PUPian branch: first option in `STATUS` step.
+- Email is always required (inject if missing from schema).
+- Attendance code validated client-side before submit and server-side in workflow.
+
+## Errors & state
+
+```typescript
+window.dispatchEvent(new CustomEvent("show-toast", { detail: message }));
+```
+
+Form state stays in React — safe to resubmit on failure.
+
+## Submit payload
+
+POST `/api/generate-cert` with `{ gdg_id, email, event_id, attendanceCode, survey_data: { isPUPian, personalInfo, evaluation } }`.
+
+See [docs/api/generate-cert.md](../../docs/api/generate-cert.md).

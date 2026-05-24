@@ -15,6 +15,9 @@ CertGen is a hyper-fast, dynamically-scalable Serverless application built for G
 | [SDD](docs/sdd.md) | Software design & architecture |
 | [Design](docs/design.md) | UI & certificate design system |
 | [AGENTS.md](AGENTS.md) | Guide for AI agents & contributors |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | PR checklist, setup, new-event workflow |
+| [API: generate-cert](docs/api/generate-cert.md) | Certificate endpoint contract |
+| [QA](docs/qa.md) | Test plans, release checklist, new-event launch QA |
 | [SQL scripts](docs/sql/README.md) | Database migrations, seeds, schema |
 
 ---
@@ -103,11 +106,15 @@ CertGen uses `@astrojs/vercel` (serverless Node) because `@resvg/resvg-js` canno
 ```text
 certgen/
 ├── AGENTS.md                    # Agent & contributor guide
+├── CONTRIBUTING.md              # PR checklist & new-event workflow
+├── .cursor/rules/               # Cursor agent rules (auto-loaded)
 ├── data/
 │   ├── event.json               # Landing page event cards
 │   └── survey.json              # Survey schema reference
 ├── docs/
 │   ├── README.md                # Documentation index
+│   ├── api/generate-cert.md     # API contract
+│   ├── qa.md                    # QA test plans & release checklist
 │   ├── prd.md · sdd.md · design.md
 │   └── sql/
 │       ├── migrations/          # DDL (survey tables)

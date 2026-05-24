@@ -1,0 +1,24 @@
+---
+description: QA checklists and test plans for releases and new events
+globs: docs/qa.md,test/**,docs/api/**
+alwaysApply: false
+---
+
+# QA
+
+After **code changes**, follow [.cursor/skills/post-task-qa/SKILL.md](../../.cursor/skills/post-task-qa/SKILL.md) — run `npm run test:qa` and report pass/fail/skip before marking work done.
+
+Before release or new-event launch, follow [docs/qa.md](../../docs/qa.md).
+
+## Quick checks
+
+- Smoke: landing → active survey → valid code → PDF download
+- Negative: wrong code, closed survey, GDG ID/email mismatch
+- Visual: `npm run test:pdf` then verify name position/color per slug
+- Persistence: `survey_response` row + Storage PDF after submit
+
+## Release gate
+
+All items in [qa.md §7 Release regression](../../docs/qa.md#7-release-regression-checklist) must pass.
+
+API errors: [docs/api/generate-cert.md](../../docs/api/generate-cert.md).

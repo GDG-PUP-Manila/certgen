@@ -1,0 +1,34 @@
+---
+description: CertGen core architecture and agent conventions
+alwaysApply: true
+---
+
+# CertGen Core
+
+Serverless Astro app: survey → PDF certificate. Stack: Astro 6 SSR · React 19 · Tailwind 4 · Supabase · Satori · Resvg · PDFKit · Vercel Node.
+
+## Layering
+
+```
+pages/api/generate-cert.ts → certificateWorkflow.service.ts
+  ├── repositories/* (only layer that talks to Supabase)
+  ├── cert-generator.tsx (Satori → PNG)
+  └── pdf.service.ts (JPG + PNG → PDF)
+```
+
+- API routes validate and delegate — business logic lives in `src/services/`.
+- Never call Supabase from React components or Astro pages.
+- Keep `@resvg/resvg-js` as a Vite SSR external in `astro.config.mjs`.
+
+## Env vars
+
+Use `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` (not `SUPABASE_KEY`).
+
+## Code style
+
+- TypeScript strict; minimal diffs; no drive-by refactors.
+- Prefer code over stale README when docs conflict (output is PDF, templates in `public/templates/`, font is `GoogleSans-Bold.ttf`).
+
+## Key docs
+
+- [AGENTS.md](../../AGENTS.md) · [CONTRIBUTING.md](../../CONTRIBUTING.md) · [docs/qa.md](../../docs/qa.md) · [docs/api/generate-cert.md](../../docs/api/generate-cert.md)

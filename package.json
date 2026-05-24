@@ -11,7 +11,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "test:pdf": "npx --yes tsx test/test-pdf.ts"
+    "test:pdf": "npx --yes tsx test/test-pdf.ts",
+    "test:qa": "node test/qa-smoke.mjs"
   },
   "dependencies": {
     "@astrojs/react": "^5.0.1",
