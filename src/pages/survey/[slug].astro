@@ -2,7 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import SurveyForm from '../../components/SurveyForm';
 import { getSurveyBySlug, getActiveSurveyByEventId } from '../../repositories/survey.repository';
-import eventsData from '../../../data/event.json';
+import { getEventById } from '../../repositories/event.repository';
 
 const { slug } = Astro.params;
 
@@ -13,27 +13,27 @@ if (!slug) {
   });
 }
 
-// 1. First, check if the slug maps to an event directly
-let event = eventsData.find((e: any) => e.id === slug);
-
-// 2. Fetch the survey from Supabase using the slug or event ID
+// 1. Fetch the survey from Supabase using the slug
 let survey = await getSurveyBySlug(slug as string);
+let event = null;
 
-if (!survey && event) {
-  // If slug was an event ID but not a survey slug, try fetching by event ID
+if (survey) {
   try {
+    event = await getEventById(survey.event_id);
+  } catch (err) {
+    event = null;
+  }
+} else {
+  // If the slug is actually an event ID directly, try loading that
+  try {
+    event = await getEventById(slug as string);
     survey = await getActiveSurveyByEventId(event.id);
   } catch (err) {
     survey = null;
   }
 }
 
-// If the slug was a survey slug, retrieve the event using the survey's event_id
-if (survey && !event) {
-  event = eventsData.find((e: any) => e.id === survey.event_id);
-}
-
-// 3. Handle 404 ONLY if the event doesn't exist at all
+// 2. Handle 404 if the event doesn't exist at all
 if (!event) {
   return new Response(null, {
     status: 404,
@@ -41,7 +41,7 @@ if (!event) {
   });
 }
 
-// 4. Check if the survey is closed based on time, active flag, or simply if it doesn't exist
+// 3. Check if the survey is closed based on time, active flag, or simply if it doesn't exist
 const now = new Date();
 const closeTime = survey && survey.close_time ? new Date(survey.close_time) : null;
 const isClosed = !survey || !survey.is_active || (closeTime && now > closeTime);

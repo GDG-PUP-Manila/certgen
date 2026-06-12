@@ -1,0 +1,559 @@
+---
+import Layout from '../../../../layouts/Layout.astro';
+import { isAuthenticated } from '../../../../lib/auth';
+import { getEventById } from '../../../../repositories/event.repository';
+import { getActiveSurveyByEventId } from '../../../../repositories/survey.repository';
+import { DEFAULT_SURVEY_SCHEMA } from '../../../../lib/defaultSchema';
+
+if (!isAuthenticated(Astro.cookies)) {
+  return Astro.redirect('/admin/login');
+}
+
+const { id } = Astro.params;
+if (!id) {
+  return Astro.redirect('/admin');
+}
+
+let event;
+let survey;
+try {
+  event = await getEventById(id);
+  try {
+    survey = await getActiveSurveyByEventId(id);
+  } catch (surveyErr) {
+    // If the survey doesn't exist yet, instantiate a default survey template
+    const defaultSlug = event.title
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-');
+
+    survey = {
+      id: null,
+      event_id: id,
+      slug: defaultSlug,
+      attendance_code: '',
+      is_active: true,
+      close_time: null,
+      questions_schema: DEFAULT_SURVEY_SCHEMA,
+      cert_config: null
+    };
+  }
+} catch (err) {
+  console.error("Error loading event config:", err);
+  return Astro.redirect('/admin');
+}
+
+const certConfig = survey.cert_config || {
+  template_url: '/templates/base-template-optimized.jpg',
+  text_top_offset: '290px',
+  text_color: '#1e293b',
+  text_font_size: '50px'
+};
+
+const certFontSize = certConfig.text_font_size || '50px';
+
+const getTemplateUrl = (urlOrFilename: string) => {
+  if (!urlOrFilename) return '/templates/base-template-optimized.jpg';
+  if (urlOrFilename.startsWith('http://') || urlOrFilename.startsWith('https://') || urlOrFilename.startsWith('/')) {
+    return urlOrFilename;
+  }
+  return `/templates/${urlOrFilename}`;
+};
+
+const previewTemplateUrl = getTemplateUrl(certConfig.template_url);
+
+const dateToLocalValue = (dateStr: string | null) => {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  const tzoffset = date.getTimezoneOffset() * 60000;
+  const localISOTime = (new Date(date.getTime() - tzoffset)).toISOString().slice(0, 16);
+  return localISOTime;
+};
+---
+
+<Layout title={`Configure Survey - ${event.title} | CertGen`}>
+  <div class="max-w-7xl mx-auto py-10 px-4 md:py-16 animate-[fade-in_650ms_cubic-bezier(0.2,0.8,0.2,1)_both]">
+    <!-- Breadcrumbs -->
+    <nav class="flex mb-6 text-sm text-gray-500" aria-label="Breadcrumb">
+      <ol class="inline-flex items-center space-x-1 md:space-x-3">
+        <li class="inline-flex items-center">
+          <a href="/admin" class="hover:text-slate-900 transition-colors">Dashboard</a>
+        </li>
+        <li>
+          <div class="flex items-center">
+            <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+            </svg>
+            <a href="/admin" class="ml-1 hover:text-slate-900 transition-colors">Events</a>
+          </div>
+        </li>
+        <li>
+          <div class="flex items-center">
+            <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+            </svg>
+            <span class="ml-1 text-gray-400 md:ml-2 font-bold truncate max-w-[200px]">{event.title} Settings</span>
+          </div>
+        </li>
+      </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="border-b border-gray-100 pb-6 mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div>
+        <h1 class="text-3xl font-black text-slate-900 tracking-tight">{event.title} Settings</h1>
+        <p class="text-gray-500 text-sm mt-1">Configure event metadata, surveys, templates, and certificate alignments</p>
+      </div>
+      <button 
+        type="button" 
+        id="save-settings-btn"
+        class="font-bold px-5 py-3 rounded-2xl bg-[#4285f4] text-white hover:bg-[#3367d6] transition-colors shadow-[0_8px_20px_rgba(66,133,244,0.15)] text-sm w-full md:w-auto"
+      >
+        Save All Settings
+      </button>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      
+      <!-- Left Column: Settings Panel -->
+      <div class="lg:col-span-7 space-y-8">
+        
+        <!-- Form Details -->
+        <div class="bg-white border border-gray-100 p-6 rounded-3xl shadow-[0_12px_30px_rgba(17,24,39,0.01)] space-y-4">
+          <h3 class="text-lg font-bold text-slate-900">Event Info</h3>
+          <div>
+            <label for="event-title" class="block text-sm font-bold text-gray-700 mb-1.5">Event Title *</label>
+            <input type="text" id="event-title" value={event.title} class="block w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm focus:ring-[#4285f4]" />
+          </div>
+          <div>
+            <label for="event-description" class="block text-sm font-bold text-gray-700 mb-1.5">Description</label>
+            <textarea id="event-description" rows="2" class="block w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm focus:ring-[#4285f4]">{event.description}</textarea>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="event-venue" class="block text-sm font-bold text-gray-700 mb-1.5">Venue</label>
+              <input type="text" id="event-venue" value={event.venue || ''} class="block w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm focus:ring-[#4285f4]" />
+            </div>
+            <div>
+              <label for="event-start-date" class="block text-sm font-bold text-gray-700 mb-1.5">Event Date</label>
+              <input type="datetime-local" id="event-start-date" value={dateToLocalValue(event.start_date)} class="block w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm focus:ring-[#4285f4]" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Survey Config -->
+        <div class="bg-white border border-gray-100 p-6 rounded-3xl shadow-[0_12px_30px_rgba(17,24,39,0.01)] space-y-4">
+          <h3 class="text-lg font-bold text-slate-900">Survey Configuration</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="survey-slug" class="block text-sm font-bold text-gray-700 mb-1.5">Survey Slug *</label>
+              <input type="text" id="survey-slug" value={survey.slug} class="block w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm focus:ring-[#4285f4]" />
+              <p class="text-[11px] text-gray-500 mt-1 flex items-start flex-wrap gap-1 leading-normal">
+                <span>Public Link:</span>
+                <span id="survey-url-preview" class="font-mono text-[#4285f4] font-bold break-all">/survey/{survey.slug}</span>
+              </p>
+            </div>
+            <div>
+              <label for="survey-attendance-code" class="block text-sm font-bold text-gray-700 mb-1.5">Attendance Code *</label>
+              <input type="text" id="survey-attendance-code" value={survey.attendance_code || ''} class="block w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm" />
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="survey-close-time" class="block text-sm font-bold text-gray-700 mb-1.5">Close Time</label>
+              <input type="datetime-local" id="survey-close-time" value={dateToLocalValue(survey.close_time)} class="block w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm" />
+            </div>
+            <div>
+              <label for="survey-is-active" class="block text-sm font-bold text-gray-700 mb-1.5">Survey Status</label>
+              <select id="survey-is-active" class="block w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm">
+                <option value="true" selected={survey.is_active === true}>Active (Accepting submissions)</option>
+                <option value="false" selected={survey.is_active === false}>Closed (Disabled)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Survey Questions Schema -->
+        <div class="bg-white border border-gray-100 p-6 rounded-3xl shadow-[0_12px_30px_rgba(17,24,39,0.01)] space-y-4">
+          <div class="flex justify-between items-center">
+            <h3 class="text-lg font-bold text-slate-900">Survey Questions Schema</h3>
+            <span class="text-xs font-bold text-[#4285f4] uppercase">JSON Format</span>
+          </div>
+          <div>
+            <textarea 
+              id="survey-schema" 
+              rows="8" 
+              class="block w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm font-mono focus:ring-[#4285f4]"
+            >{JSON.stringify(survey.questions_schema, null, 2)}</textarea>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Visual Preview & Template Config -->
+      <div class="lg:col-span-5 space-y-8">
+        
+        <!-- Live Layout Customizer -->
+        <div class="bg-white border border-gray-100 p-6 rounded-3xl shadow-[0_12px_30px_rgba(17,24,39,0.01)] space-y-6">
+          <h3 class="text-lg font-bold text-slate-900">Certificate Designer</h3>
+
+          <!-- Background Template Image Upload -->
+          <div class="space-y-2">
+            <label class="block text-sm font-bold text-gray-700">Certificate Background (JPEG/PNG)</label>
+            <div class="flex items-center gap-3">
+              <input 
+                type="file" 
+                id="template-file-input" 
+                accept="image/png, image/jpeg" 
+                class="hidden" 
+              />
+              <button 
+                type="button" 
+                id="upload-template-btn"
+                class="font-bold px-4 py-2.5 rounded-xl border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-colors text-xs"
+              >
+                Upload Template
+              </button>
+              <span id="upload-status" class="text-xs text-gray-500 truncate max-w-[200px]">
+                Using current template
+              </span>
+            </div>
+            <div class="mt-2">
+              <label for="cert-template-url" class="block text-xs font-bold text-gray-500 mb-1">Template URL / Filename</label>
+              <input 
+                type="text" 
+                id="cert-template-url" 
+                value={certConfig.template_url} 
+                placeholder="e.g., pm-workshop-optimized.jpg or public URL"
+                class="block w-full rounded-xl border border-gray-200 px-3 py-2 text-xs font-mono" 
+              />
+            </div>
+          </div>
+
+          <!-- Alignment Sliders -->
+          <div class="space-y-4 border-t border-gray-100 pt-4">
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <label for="text-offset-slider" class="text-sm font-bold text-gray-700">Name Vertical Offset (Y)</label>
+                <span id="offset-val" class="text-xs font-mono font-bold text-slate-700 bg-gray-100 px-2 py-0.5 rounded-md">
+                  {certConfig.text_top_offset}
+                </span>
+              </div>
+              <input 
+                type="range" 
+                id="text-offset-slider" 
+                min="100" 
+                max="600" 
+                value={parseInt(certConfig.text_top_offset || '290')}
+                class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#4285f4]"
+              />
+            </div>
+
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <label for="text-size-slider" class="text-sm font-bold text-gray-700">Name Font Size (px)</label>
+                <span id="size-val" class="text-xs font-mono font-bold text-slate-700 bg-gray-100 px-2 py-0.5 rounded-md">
+                  {certFontSize}
+                </span>
+              </div>
+              <input 
+                type="range" 
+                id="text-size-slider" 
+                min="20" 
+                max="100" 
+                value={parseInt(certFontSize)}
+                class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#4285f4]"
+              />
+            </div>
+
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <label for="text-color-input" class="text-sm font-bold text-gray-700">Name Font Color</label>
+                <span id="color-val" class="text-xs font-mono font-bold text-slate-700 bg-gray-100 px-2 py-0.5 rounded-md">
+                  {certConfig.text_color}
+                </span>
+              </div>
+              <div class="flex gap-2">
+                <input 
+                  type="color" 
+                  id="text-color-picker" 
+                  value={certConfig.text_color || '#1e293b'} 
+                  class="h-10 w-12 rounded-xl border border-gray-200 cursor-pointer" 
+                />
+                <input 
+                  type="text" 
+                  id="text-color-input" 
+                  value={certConfig.text_color || '#1e293b'} 
+                  class="block w-full rounded-xl border border-gray-200 px-3 py-2 text-sm font-mono" 
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Live Preview Sandbox -->
+          <div class="space-y-2 border-t border-gray-100 pt-4">
+            <span class="block text-sm font-bold text-gray-700">Live Customizer Canvas</span>
+            
+            <div class="relative overflow-hidden aspect-[1000/707] w-full border border-gray-150 rounded-2xl bg-slate-50 shadow-[inset_0_4px_12px_rgba(0,0,0,0.03)] flex items-center justify-center" style="container-type: inline-size;">
+              <img 
+                id="preview-bg" 
+                src={previewTemplateUrl} 
+                alt="Certificate Preview" 
+                class="absolute inset-0 w-full h-full object-contain"
+              />
+              
+              <!-- Text element reflecting offset, size, color directly -->
+              <div 
+                id="preview-name"
+                class="absolute left-0 right-0 text-center font-bold font-['Outfit',sans-serif] pointer-events-none select-none"
+                style={`top: ${certConfig.text_top_offset}; color: ${certConfig.text_color}; font-size: ${(parseInt(certFontSize) / 10).toFixed(2)}cqw; text-transform: uppercase; letter-spacing: 0.02em;`}
+              >
+                Sparky G. Lorenzo
+              </div>
+            </div>
+            <span class="block text-[10px] text-gray-500 text-center italic mt-1">
+              Canvas represents a dynamic landscape A4 ratio (1000x707 ratio).
+            </span>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <script define:vars={{ id, survey }}>
+    // DOM nodes
+    const previewBg = document.getElementById('preview-bg');
+    const previewName = document.getElementById('preview-name');
+    const offsetSlider = document.getElementById('text-offset-slider');
+    const offsetVal = document.getElementById('offset-val');
+    const sizeSlider = document.getElementById('text-size-slider');
+    const sizeVal = document.getElementById('size-val');
+    const colorPicker = document.getElementById('text-color-picker');
+    const colorInput = document.getElementById('text-color-input');
+    const colorVal = document.getElementById('color-val');
+    const templateFileInput = document.getElementById('template-file-input');
+    const uploadTemplateBtn = document.getElementById('upload-template-btn');
+    const uploadStatus = document.getElementById('upload-status');
+    const certTemplateUrl = document.getElementById('cert-template-url');
+    const saveSettingsBtn = document.getElementById('save-settings-btn');
+
+    // Live adjustments
+    offsetSlider.addEventListener('input', (e) => {
+      const topOffset = `${e.target.value}px`;
+      offsetVal.innerText = topOffset;
+      previewName.style.top = `${(e.target.value / 7.07).toFixed(2)}%`;
+    });
+
+    sizeSlider.addEventListener('input', (e) => {
+      const fontSize = `${e.target.value}px`;
+      sizeVal.innerText = fontSize;
+      previewName.style.fontSize = `${(e.target.value / 10).toFixed(2)}cqw`;
+    });
+
+    // Translate top offset to percentage in visual preview to maintain aspect layout scale responsive
+    const updatePreviewPosition = (pxValue) => {
+      const numeric = parseInt(pxValue);
+      previewName.style.top = `${(numeric / 7.07).toFixed(2)}%`;
+    };
+    updatePreviewPosition(offsetSlider.value);
+
+    const updateColor = (hexValue) => {
+      previewName.style.color = hexValue;
+      colorInput.value = hexValue;
+      colorPicker.value = hexValue;
+      colorVal.innerText = hexValue;
+    };
+
+    colorPicker.addEventListener('input', (e) => updateColor(e.target.value));
+    colorInput.addEventListener('input', (e) => updateColor(e.target.value));
+
+    // Live background updates when typing
+    const updatePreviewBg = (val) => {
+      if (val && !val.startsWith('http') && !val.startsWith('/')) {
+        previewBg.src = `/templates/${val}`;
+      } else {
+        previewBg.src = val || '/templates/base-template-optimized.jpg';
+      }
+    };
+    certTemplateUrl.addEventListener('input', (e) => updatePreviewBg(e.target.value));
+
+    // Live URL preview helper
+    const surveySlugInput = document.getElementById('survey-slug');
+    const surveyUrlPreview = document.getElementById('survey-url-preview');
+    const updateSlugPreview = () => {
+      const sanitizedSlug = surveySlugInput.value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
+      const origin = window.location.origin;
+      surveyUrlPreview.innerText = `${origin}/survey/${sanitizedSlug || '[slug]'}`;
+    };
+    // Initialize preview with absolute origin on load
+    updateSlugPreview();
+    surveySlugInput.addEventListener('input', updateSlugPreview);
+
+    // Helper function to compress image client-side to keep size small before uploading to Supabase
+    const compressImage = (file, quality = 0.90) => {
+      return new Promise((resolve) => {
+        if (!file.type.startsWith('image/')) {
+          return resolve(file);
+        }
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+          const img = new Image();
+          img.src = event.target.result;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.naturalWidth;
+            let height = img.naturalHeight;
+            const maxDimension = 3000; // Optimal 3K print resolution for certificates
+
+            if (width > maxDimension || height > maxDimension) {
+              if (width > height) {
+                height = Math.round((height * maxDimension) / width);
+                width = maxDimension;
+              } else {
+                width = Math.round((width * maxDimension) / height);
+                height = maxDimension;
+              }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return resolve(file);
+
+            ctx.drawImage(img, 0, 0, width, height);
+
+            canvas.toBlob((blob) => {
+              if (!blob) return resolve(file);
+              const newFileName = file.name.replace(/\.[^/.]+$/, "") + "-optimized.jpg";
+              const optimizedFile = new File([blob], newFileName, {
+                type: 'image/jpeg',
+                lastModified: Date.now()
+              });
+              resolve(optimizedFile);
+            }, 'image/jpeg', quality);
+          };
+          img.onerror = () => resolve(file);
+        };
+        reader.onerror = () => resolve(file);
+      });
+    };
+
+    // Handle background upload
+    uploadTemplateBtn.addEventListener('click', () => templateFileInput.click());
+    templateFileInput.addEventListener('change', async () => {
+      const file = templateFileInput.files[0];
+      if (!file) return;
+
+      uploadStatus.innerText = 'Optimizing...';
+      const optimizedFile = await compressImage(file, 0.90);
+
+      uploadStatus.innerText = 'Uploading...';
+      const formData = new FormData();
+      formData.append('file', optimizedFile);
+      formData.append('slug', document.getElementById('survey-slug').value);
+
+      try {
+        const response = await fetch('/api/admin/upload-template', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await response.json();
+        
+        if (response.ok && data.publicUrl) {
+          uploadStatus.innerText = 'Template active!';
+          certTemplateUrl.value = data.publicUrl;
+          previewBg.src = data.publicUrl;
+          window.dispatchEvent(new CustomEvent('show-toast', { detail: 'Background uploaded successfully.' }));
+        } else {
+          uploadStatus.innerText = 'Failed upload';
+          window.dispatchEvent(new CustomEvent('show-toast', { detail: data.error || 'Failed to upload image.' }));
+        }
+      } catch (err) {
+        uploadStatus.innerText = 'Error occurred';
+        window.dispatchEvent(new CustomEvent('show-toast', { detail: 'Network error occurred during image upload.' }));
+      }
+    });
+
+    // Save Settings
+    saveSettingsBtn.addEventListener('click', async () => {
+      const title = document.getElementById('event-title').value;
+      const description = document.getElementById('event-description').value;
+      const venue = document.getElementById('event-venue').value;
+      const start_date = document.getElementById('event-start-date').value;
+      const slug = document.getElementById('survey-slug').value.trim().toLowerCase();
+      const attendance_code = document.getElementById('survey-attendance-code').value;
+      const close_time = document.getElementById('survey-close-time').value;
+      const is_active = document.getElementById('survey-is-active').value === 'true';
+      const schemaRaw = document.getElementById('survey-schema').value;
+
+      let questions_schema;
+      try {
+        questions_schema = JSON.parse(schemaRaw);
+      } catch (e) {
+        window.dispatchEvent(new CustomEvent('show-toast', { detail: 'Questions Schema has an invalid JSON syntax!' }));
+        return;
+      }
+
+      const cert_config = {
+        template_url: certTemplateUrl.value,
+        text_top_offset: `${offsetSlider.value}px`,
+        text_color: colorInput.value,
+        text_font_size: `${sizeSlider.value}px`
+      };
+
+      const payload = {
+        event: {
+          id: id,
+          title,
+          description,
+          venue,
+          start_date: start_date ? new Date(start_date).toISOString() : null,
+          end_date: start_date ? new Date(start_date).toISOString() : null
+        },
+        survey: {
+          id: survey.id,
+          slug,
+          attendance_code,
+          is_active,
+          close_time: close_time ? new Date(close_time).toISOString() : null,
+          questions_schema,
+          cert_config
+        }
+      };
+
+      try {
+        saveSettingsBtn.innerText = 'Saving...';
+        const response = await fetch('/api/admin/save-survey', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+        if (response.ok && data.success) {
+          window.dispatchEvent(new CustomEvent('show-toast', { detail: 'All configurations saved successfully.' }));
+          if (!survey.id) {
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          }
+        } else {
+          window.dispatchEvent(new CustomEvent('show-toast', { detail: data.error || 'Failed to save settings.' }));
+        }
+      } catch (err) {
+        window.dispatchEvent(new CustomEvent('show-toast', { detail: 'A network error occurred.' }));
+      } finally {
+        saveSettingsBtn.innerText = 'Save All Settings';
+      }
+    });
+  </script>
+</Layout>

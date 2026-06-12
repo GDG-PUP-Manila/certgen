@@ -1,22 +1,11 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import eventsData from '../../data/event.json';
+import { getAllEvents } from '../repositories/event.repository';
 import { getAllSurveys } from '../repositories/survey.repository';
 
-// Fetch surveys from backend so we get the dynamic slugs for the active events
+// Fetch events and surveys dynamically from DB
+const events = await getAllEvents();
 const surveysData = await getAllSurveys();
-
-// Type inference to ensure safety
-type Event = {
-  id: string;
-  title: string;
-  description: string;
-  venue: string;
-  start_date: string;
-};
-
-// Filter out past events if needed, for MVP we just show all
-const events = eventsData as Event[];
 ---
 
 <Layout 

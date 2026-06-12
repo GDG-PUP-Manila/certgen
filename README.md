@@ -39,7 +39,7 @@ This project uses a **Serverless Node Architecture** on Vercel (not Edge — Res
 ## Core Features
 
 ### 1. Dynamic React Form Engine
-`SurveyForm.tsx` builds the survey from a JSON schema (`data/survey.json`).
+`SurveyForm.tsx` builds the survey from a JSON schema fetched dynamically from the database (`survey.questions_schema`).
 - **Conditional paths** for PUPian vs Non-PUPian attendees
 - **Fail-safe resilience** — form state stays in React memory for retry on failure
 - **Attendance code** required before certificate generation
@@ -108,9 +108,6 @@ certgen/
 ├── AGENTS.md                    # Agent & contributor guide
 ├── CONTRIBUTING.md              # PR checklist & new-event workflow
 ├── .cursor/rules/               # Cursor agent rules (auto-loaded)
-├── data/
-│   ├── event.json               # Landing page event cards
-│   └── survey.json              # Survey schema reference
 ├── docs/
 │   ├── README.md                # Documentation index
 │   ├── api/generate-cert.md     # API contract

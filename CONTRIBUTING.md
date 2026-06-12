@@ -33,20 +33,17 @@ Node **>= 22.12.0** required. Database setup: [docs/sql/README.md](docs/sql/READ
 - [ ] Supabase access stays in repositories only
 - [ ] Env var names match code (`SUPABASE_SERVICE_ROLE_KEY`, not `SUPABASE_KEY`)
 - [ ] Certificate/template changes tested with `npm run test:pdf` when applicable
-- [ ] Survey changes verified against schema in `data/survey.json` or seed SQL
 - [ ] Docs updated if behavior, API, or setup changed
 - [ ] No credentials or large unoptimized assets committed
 
 ## Adding a new event / survey
 
-1. Add event card to [`data/event.json`](data/event.json).
-2. Insert survey row in Supabase — see [`docs/sql/migrations/SURVEY_MIGRATION.sql`](docs/sql/migrations/SURVEY_MIGRATION.sql) and [`docs/sql/seeds/`](docs/sql/seeds/).
-3. Mirror schema in [`data/survey.json`](data/survey.json).
-4. Export certificate background from Canva → PNG.
-5. Optimize: PNG → JPEG (~quality 90, MozJPEG) → `public/templates/{slug}-optimized.jpg`.
-6. Add slug branch in [`src/services/certificateWorkflow.service.ts`](src/services/certificateWorkflow.service.ts) (`templateFilename`, `textTopOffset`, `textColor`).
-7. Tune alignment: `npm run test:pdf` → inspect `test/output/test-output.pdf`.
-8. Smoke-test the full flow on `/survey/{slug}` locally.
+1. Create and configure the event via the Admin Panel UI (at `/admin/events/new`).
+2. Export certificate background from Canva → PNG.
+3. Optimize: PNG → JPEG (~quality 90, MozJPEG) → `public/templates/{slug}-optimized.jpg`.
+4. Upload background template and tune the alignment settings (top offset, text color) directly via the Admin Canvas Designer at `/admin/events/{event_id}/survey`.
+5. Tune alignment: `npm run test:pdf` → inspect `test/output/test-output.pdf`.
+6. Smoke-test the full flow on `/survey/{slug}` locally.
 
 ## Testing
 
@@ -65,7 +62,7 @@ Project-specific agent rules live in [`.cursor/rules/`](.cursor/rules/):
 | Rule | Scope |
 |------|-------|
 | `certgen-core.mdc` | Always applied — architecture, env, style |
-| `survey-form.mdc` | SurveyForm, survey pages, `data/survey.json` |
+| `survey-form.mdc` | SurveyForm, survey pages |
 | `certificate-pipeline.mdc` | Services, API, templates, PDF tests |
 | `database.mdc` | Repositories, SQL migrations/seeds |
 | `qa.mdc` | QA docs, test scripts, release checklist |

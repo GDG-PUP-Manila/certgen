@@ -26,3 +26,11 @@ pnpm-debug.log*
 
 # local test outputs
 test/output/
+
+# agent-specific files and tools
+.agents/
+.mcp.json
+skills-lock.json
+
+# user-uploaded screenshots or root image files
+/*.png

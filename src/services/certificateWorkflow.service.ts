@@ -67,28 +67,23 @@ export const processCertificateWorkflow = async (data: WorkflowInput) => {
     displayName = displayName.substring(0, 37) + "...";
   }
 
-  // Define Template configuration per event slug
-  let templateFilename = "base-template-optimized.jpg";
-  let textTopOffset = "290px";
-  let textColor = "#1e293b";
+  // Define Template configuration directly from database cert_config
+  const certConfig = survey.cert_config && typeof survey.cert_config === "object"
+    ? (survey.cert_config as any)
+    : {};
 
-  if (survey.slug === "bwai2026-day1") {
-    templateFilename = "bwai-template-optimized.jpg"; // Your newly uploaded template
-    textTopOffset = "310px";
-  } else if (survey.slug === "bwai2026-day2") {
-    templateFilename = "bwai2026-day2-optimized.jpg";
-    textTopOffset = "310px";
-  } else if (survey.slug === "pm-workshop") {
-    templateFilename = "pm-workshop-optimized.jpg";
-    textTopOffset = "290px";
-    textColor = "#073b1a";
-  }
+  // Resolve template name/URL, offset, color, and font size dynamically with clean defaults
+  const templateFilename = certConfig.template_url || certConfig.templateFilename || "base-template-optimized.jpg";
+  const textTopOffset = certConfig.text_top_offset || "290px";
+  const textColor = certConfig.text_color || "#1e293b";
+  const textFontSize = certConfig.text_font_size || "50px";
 
   // 4. Generate High-Res PNG
   const pngBuffer = await generateCertificate({
     displayName,
     topOffset: textTopOffset,
     textColor,
+    fontSize: textFontSize,
   });
 
   // 5. Convert PNG to PDF

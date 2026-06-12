@@ -12,3 +12,30 @@ export const getEventById = async (event_id: string) => {
 
   return event;
 };
+
+export const getAllEvents = async () => {
+  const { data: events, error } = await supabaseAdmin
+    .from("event")
+    .select("*")
+    .order("start_date", { ascending: false });
+
+  if (error) {
+    console.error("Failed to fetch events:", error);
+    return [];
+  }
+  return events;
+};
+
+export const createEvent = async (eventData: any) => {
+  const { data: event, error } = await supabaseAdmin
+    .from("event")
+    .insert(eventData)
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Failed to create event:", error);
+    throw new Error("Failed to create event in database.");
+  }
+  return event;
+};

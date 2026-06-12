@@ -71,3 +71,59 @@ export const saveSurveyResponse = async (payload: SurveyResponsePayload) => {
     );
   }
 };
+
+export const createSurvey = async (surveyData: any) => {
+  const { data: survey, error } = await supabaseAdmin
+    .from("survey")
+    .insert(surveyData)
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Failed to create survey:", error);
+    throw new Error("Failed to create survey in database.");
+  }
+  return survey;
+};
+
+export const updateSurvey = async (surveyId: string, surveyData: any) => {
+  const { data: survey, error } = await supabaseAdmin
+    .from("survey")
+    .update(surveyData)
+    .eq("id", surveyId)
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Failed to update survey:", error);
+    throw new Error("Failed to update survey in database.");
+  }
+  return survey;
+};
+
+export const getResponsesByEventId = async (eventId: string) => {
+  const { data: responses, error } = await supabaseAdmin
+    .from("survey_response")
+    .select("*")
+    .eq("event_id", eventId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Failed to fetch survey responses:", error);
+    return [];
+  }
+  return responses;
+};
+
+export const deleteResponseById = async (responseId: string) => {
+  const { error } = await supabaseAdmin
+    .from("survey_response")
+    .delete()
+    .eq("id", responseId);
+
+  if (error) {
+    console.error("Failed to delete survey response:", error);
+    throw new Error("Failed to delete survey response.");
+  }
+};
+

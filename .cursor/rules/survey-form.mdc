@@ -1,12 +1,12 @@
 ---
 description: SurveyForm schema-driven step conventions
-globs: src/components/SurveyForm.tsx,src/pages/survey/**,data/survey.json
+globs: src/components/SurveyForm.tsx,src/pages/survey/**
 alwaysApply: false
 ---
 
 # Survey Form
 
-Schema-driven from `questions_schema.steps` in Supabase / `data/survey.json`.
+Schema-driven from `questions_schema.steps` in the Supabase database.
 
 ## Hardcoded step IDs
 

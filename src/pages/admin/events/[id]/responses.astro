@@ -1,0 +1,396 @@
+---
+import Layout from '../../../../layouts/Layout.astro';
+import { isAuthenticated } from '../../../../lib/auth';
+import { getEventById } from '../../../../repositories/event.repository';
+import { getResponsesByEventId } from '../../../../repositories/survey.repository';
+
+if (!isAuthenticated(Astro.cookies)) {
+  return Astro.redirect('/admin/login');
+}
+
+const { id } = Astro.params;
+if (!id) {
+  return Astro.redirect('/admin');
+}
+
+let event;
+let responses = [];
+try {
+  event = await getEventById(id);
+  responses = await getResponsesByEventId(id);
+} catch (err) {
+  console.error("Error loading event responses:", err);
+  return Astro.redirect('/admin');
+}
+---
+
+<Layout title={`Survey Responses - ${event.title} | CertGen`}>
+  <div class="max-w-7xl mx-auto py-10 px-4 md:py-16 animate-[fade-in_650ms_cubic-bezier(0.2,0.8,0.2,1)_both] w-full flex-grow flex flex-col">
+    <!-- Breadcrumbs -->
+    <nav class="flex mb-6 text-sm text-gray-500" aria-label="Breadcrumb">
+      <ol class="inline-flex items-center space-x-1 md:space-x-3">
+        <li class="inline-flex items-center">
+          <a href="/admin" class="hover:text-slate-900 transition-colors">Dashboard</a>
+        </li>
+        <li>
+          <div class="flex items-center">
+            <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+            </svg>
+            <a href="/admin" class="ml-1 hover:text-slate-900 transition-colors">Events</a>
+          </div>
+        </li>
+        <li>
+          <div class="flex items-center">
+            <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+            </svg>
+            <span class="ml-1 text-gray-400 md:ml-2 font-bold truncate max-w-[200px]">{event.title} Responses</span>
+          </div>
+        </li>
+      </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="border-b border-gray-100 pb-6 mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div>
+        <h1 class="text-3xl font-black text-slate-900 tracking-tight">{event.title} Responses</h1>
+        <p class="text-gray-500 text-sm mt-1">Total Submissions: <span class="font-bold text-slate-950">{responses.length}</span></p>
+      </div>
+      <div class="flex items-center gap-3 w-full md:w-auto">
+        <button 
+          type="button" 
+          id="export-csv-btn"
+          class="font-bold px-5 py-3 rounded-2xl bg-slate-900 text-white hover:bg-slate-800 transition-colors shadow-sm text-sm w-full md:w-auto"
+        >
+          Export CSV
+        </button>
+      </div>
+    </div>
+
+    <!-- Responses Table -->
+    {responses.length === 0 ? (
+      <div class="text-center py-20 bg-white border border-gray-100 rounded-3xl p-8 shadow-[0_12px_30px_rgba(17,24,39,0.02)]">
+        <div class="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-50 text-gray-400 mb-4 border border-gray-100">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-slate-900">No submissions yet</h3>
+        <p class="text-gray-500 text-sm mt-1">Once attendees submit evaluations, their details will display here.</p>
+      </div>
+    ) : (
+      <div class="bg-white rounded-3xl border border-gray-100 shadow-[0_12px_30px_rgba(17,24,39,0.02)] overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-100" id="responses-table">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Attendee Name</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Email Address</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">GDG Member ID</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Submitted</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Certificate</th>
+                <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              {responses.map((res: any) => {
+                const dateObj = new Date(res.created_at);
+                const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                
+                // Extract display name from nested structure
+                const name = res.survey_data?.personalInfo?.name || res.survey_data?.name || "Participant";
+
+                return (
+                  <tr class="hover:bg-gray-50/50 transition-colors" id={`row-${res.id}`}>
+                    <td class="px-6 py-4">
+                      <div class="text-sm font-bold text-slate-900">{name}</div>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-600">
+                      {res.email}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-500 font-mono">
+                      {res.gdg_id || '—'}
+                    </td>
+                    <td class="px-6 py-4 text-xs text-gray-500">
+                      {formattedDate}
+                    </td>
+                    <td class="px-6 py-4 text-sm">
+                      {res.certificate_url ? (
+                        <a 
+                          href={res.certificate_url} 
+                          target="_blank" 
+                          class="inline-flex items-center text-xs font-bold text-[#4285f4] hover:underline"
+                        >
+                          View PDF
+                        </a>
+                      ) : (
+                        <span class="text-gray-400 text-xs italic">Not generated</span>
+                      )}
+                    </td>
+                    <td class="px-6 py-4 text-right text-sm font-medium space-x-3">
+                      <button 
+                        type="button"
+                        class="view-details-btn text-xs font-bold text-[#4285f4] hover:text-[#3367d6] transition-colors"
+                        data-id={res.id}
+                      >
+                        Details
+                      </button>
+                      <button 
+                        type="button"
+                        data-id={res.id}
+                        class="delete-res-btn text-xs font-bold text-red-600 hover:text-red-800 transition-colors"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    )}
+
+    <!-- Response Details Modal -->
+    <div id="details-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+      <!-- Backdrop -->
+      <div id="modal-backdrop" class="fixed inset-0 bg-gray-500/75 backdrop-blur-sm transition-opacity"></div>
+
+      <!-- Centering wrapper -->
+      <div class="relative flex min-h-full items-center justify-center p-4 py-16">
+        <!-- Modal panel -->
+        <div class="relative bg-white rounded-3xl text-left shadow-xl transform transition-all w-full max-w-2xl max-h-[80vh] flex flex-col border border-gray-100 overflow-hidden">
+          <!-- Modal Header -->
+          <div class="bg-white px-6 py-5 border-b border-gray-100 flex justify-between items-center shrink-0">
+            <div>
+              <h3 class="text-xl font-black text-slate-900" id="modal-title">Survey Response Details</h3>
+              <p id="modal-subtitle" class="text-xs text-gray-500 mt-1"></p>
+            </div>
+            <button type="button" id="close-modal-btn" class="rounded-xl p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          
+          <!-- Modal Body (scrolls when too tall) -->
+          <div class="px-6 py-6 overflow-y-auto space-y-6 flex-grow" id="modal-body">
+            <!-- Dynamic content -->
+          </div>
+          
+          <!-- Modal Footer -->
+          <div class="bg-gray-50 px-6 py-4 flex justify-end gap-3 rounded-b-3xl shrink-0 border-t border-gray-100">
+            <button type="button" id="close-modal-footer-btn" class="font-bold px-4 py-2.5 rounded-xl border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-colors text-xs">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script define:vars={{ responses, event }}>
+    // Helper to flatten object for CSV columns
+    function flattenObject(obj, prefix = '') {
+      let result = {};
+      if (!obj) return result;
+      for (const [key, value] of Object.entries(obj)) {
+        const fullKey = prefix ? `${prefix}.${key}` : key;
+        if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+          const flat = flattenObject(value, fullKey);
+          result = { ...result, ...flat };
+        } else {
+          result[fullKey] = value;
+        }
+      }
+      return result;
+    }
+
+    // Export CSV with dynamic survey details columns
+    const exportCsvBtn = document.getElementById('export-csv-btn');
+    exportCsvBtn?.addEventListener('click', () => {
+      if (responses.length === 0) return;
+
+      // Flatten each response's survey_data
+      const allFlatResponses = responses.map(r => flattenObject(r.survey_data || {}));
+      
+      // Get all unique flat keys across all responses
+      const uniqueKeysSet = new Set();
+      allFlatResponses.forEach(flat => {
+        Object.keys(flat).forEach(key => uniqueKeysSet.add(key));
+      });
+      const uniqueKeys = Array.from(uniqueKeysSet).sort();
+
+      // Setup CSV headers
+      const headers = ['ID', 'Email', 'GDG ID', 'Submitted At', 'Certificate URL', ...uniqueKeys.map(k => k.toUpperCase())];
+      
+      const rows = responses.map((r, index) => {
+        const flatData = allFlatResponses[index];
+        const baseRow = [
+          r.id,
+          r.email,
+          r.gdg_id || '',
+          r.created_at,
+          r.certificate_url || ''
+        ];
+        
+        const answerRow = uniqueKeys.map(key => {
+          const val = flatData[key];
+          return val === undefined || val === null ? '' : String(val);
+        });
+        
+        return [...baseRow, ...answerRow];
+      });
+
+      const csvContent = [
+        headers.join(','),
+        ...rows.map(row => row.map(val => `"${val.replace(/"/g, '""')}"`).join(','))
+      ].join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `responses-${event.title.replace(/\s+/g, '-').toLowerCase()}-${Date.now()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+
+    // Modal logic
+    const modal = document.getElementById('details-modal');
+    const modalSubtitle = document.getElementById('modal-subtitle');
+    const modalBody = document.getElementById('modal-body');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    const closeModalFooterBtn = document.getElementById('close-modal-footer-btn');
+    const modalBackdrop = document.getElementById('modal-backdrop');
+
+    const showModal = (response) => {
+      const name = response.survey_data?.personalInfo?.name || response.survey_data?.name || "Participant";
+      modalSubtitle.innerText = `${name} (${response.email})`;
+      
+      renderJsonDetails(response.survey_data || {}, modalBody);
+      modal.classList.remove('hidden');
+      modal.scrollTop = 0;
+      document.body.style.overflow = 'hidden';
+    };
+
+    const hideModal = () => {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    };
+
+    closeModalBtn?.addEventListener('click', hideModal);
+    closeModalFooterBtn?.addEventListener('click', hideModal);
+    modalBackdrop?.addEventListener('click', hideModal);
+
+    function renderJsonDetails(obj, container) {
+      container.innerHTML = '';
+      
+      const createSection = (title) => {
+        const div = document.createElement('div');
+        div.className = 'space-y-3';
+        const h4 = document.createElement('h4');
+        h4.className = 'text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100 pb-1.5';
+        h4.innerText = title;
+        div.appendChild(h4);
+        const grid = document.createElement('div');
+        grid.className = 'grid grid-cols-1 md:grid-cols-2 gap-4';
+        div.appendChild(grid);
+        return { section: div, grid };
+      };
+
+      const createItem = (label, value) => {
+        const item = document.createElement('div');
+        item.className = 'bg-gray-50/50 border border-gray-100/50 p-3 rounded-2xl';
+        const lbl = document.createElement('div');
+        lbl.className = 'text-xs font-bold text-gray-500';
+        lbl.innerText = label;
+        const val = document.createElement('div');
+        val.className = 'text-sm text-slate-800 mt-1 font-semibold whitespace-pre-line';
+        
+        if (typeof value === 'object' && value !== null) {
+          val.className = 'text-xs text-slate-800 mt-1 font-mono space-y-1.5';
+          val.innerHTML = Object.entries(value)
+            .map(([k, v]) => `<div class="flex justify-between border-b border-gray-100/30 py-0.5"><span>${k}:</span> <span class="font-bold text-[#4285f4]">${v}</span></div>`)
+            .join('');
+        } else {
+          val.innerText = value === true ? 'Yes' : value === false ? 'No' : (value ?? '—');
+        }
+        
+        item.appendChild(lbl);
+        item.appendChild(val);
+        return item;
+      };
+
+      const flatItems = [];
+
+      for (const [sectionKey, sectionValue] of Object.entries(obj)) {
+        if (typeof sectionValue === 'object' && sectionValue !== null && !Array.isArray(sectionValue)) {
+          const prettyTitle = sectionKey.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+          const { section, grid } = createSection(prettyTitle);
+          for (const [key, val] of Object.entries(sectionValue)) {
+            const prettyLabel = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+            grid.appendChild(createItem(prettyLabel, val));
+          }
+          container.appendChild(section);
+        } else {
+          const prettyLabel = sectionKey.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+          flatItems.push({ label: prettyLabel, value: sectionValue });
+        }
+      }
+
+      if (flatItems.length > 0) {
+        const { section, grid } = createSection('General Information');
+        flatItems.forEach(item => {
+          grid.appendChild(createItem(item.label, item.value));
+        });
+        container.insertBefore(section, container.firstChild);
+      }
+    }
+
+    // Attach Details button listeners
+    document.querySelectorAll('.view-details-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const responseId = btn.getAttribute('data-id');
+        const response = responses.find(r => r.id === responseId);
+        if (response) {
+          showModal(response);
+        }
+      });
+    });
+
+    // Delete Response
+    document.querySelectorAll('.delete-res-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const responseId = btn.getAttribute('data-id');
+        if (!responseId) return;
+
+        if (!confirm('Are you sure you want to delete this response? This action cannot be undone.')) {
+          return;
+        }
+
+        try {
+          const response = await fetch('/api/admin/delete-response', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ responseId })
+          });
+
+          const data = await response.json();
+          if (response.ok && data.success) {
+            const row = document.getElementById(`row-${responseId}`);
+            row?.remove();
+            window.dispatchEvent(new CustomEvent('show-toast', { detail: 'Response deleted successfully.' }));
+          } else {
+            window.dispatchEvent(new CustomEvent('show-toast', { detail: data.error || 'Failed to delete response.' }));
+          }
+        } catch (err) {
+          window.dispatchEvent(new CustomEvent('show-toast', { detail: 'An error occurred.' }));
+        }
+      });
+    });
+  </script>
+</Layout>

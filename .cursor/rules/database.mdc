@@ -22,8 +22,7 @@ Run order: migrations → seeds. See [docs/sql/README.md](../../docs/sql/README.
 
 ## Adding a survey
 
-1. Seed row in Supabase (`docs/sql/seeds/`)
-2. Mirror schema in `data/survey.json`
-3. Match `event_id` UUIDs to `data/event.json`
+1. Initialize and configure the event survey via the Admin Panel UI (e.g. `/admin/events/new` and settings pages).
+2. For local testing, add seed rows to `docs/sql/seeds/` (e.g., `DYNAMIC_SEED.sql`).
 
 Do not call Supabase from components or Astro pages.

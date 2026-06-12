@@ -1,0 +1,207 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { isAuthenticated } from '../../../lib/auth';
+import { DEFAULT_SURVEY_SCHEMA } from '../../../lib/defaultSchema';
+
+if (!isAuthenticated(Astro.cookies)) {
+  return Astro.redirect('/admin/login');
+}
+
+const defaultSchema = DEFAULT_SURVEY_SCHEMA;
+---
+
+<Layout title="Create New Event | CertGen">
+  <div class="max-w-4xl mx-auto py-10 px-4 md:py-16 animate-[fade-in_650ms_cubic-bezier(0.2,0.8,0.2,1)_both]">
+    <!-- Breadcrumbs -->
+    <nav class="flex mb-6 text-sm text-gray-500" aria-label="Breadcrumb">
+      <ol class="inline-flex items-center space-x-1 md:space-x-3">
+        <li class="inline-flex items-center">
+          <a href="/admin" class="hover:text-slate-900 transition-colors">Dashboard</a>
+        </li>
+        <li>
+          <div class="flex items-center">
+            <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+            </svg>
+            <span class="ml-1 text-gray-400 md:ml-2 font-bold">New Event</span>
+          </div>
+        </li>
+      </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="border-b border-gray-100 pb-6 mb-8">
+      <h1 class="text-3xl font-black text-slate-900 tracking-tight">Create New Event</h1>
+      <p class="text-gray-500 text-sm mt-1">Configure event details and initialize its survey</p>
+    </div>
+
+    <!-- Form -->
+    <form id="create-event-form" class="space-y-8 bg-white border border-gray-100 p-8 rounded-3xl shadow-[0_12px_30px_rgba(17,24,39,0.02)]">
+      <!-- Section 1: Event Details -->
+      <div class="space-y-5">
+        <h3 class="text-lg font-bold text-slate-900">Event Details</h3>
+        
+        <div>
+          <label for="title" class="block text-sm font-bold text-gray-700 mb-1.5">Event Title *</label>
+          <input 
+            type="text" 
+            id="title" 
+            required 
+            placeholder="e.g. Build with AI Day 2" 
+            class="block w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-[#4285f4] focus:border-[#4285f4] transition-colors"
+          />
+        </div>
+
+        <div>
+          <label for="description" class="block text-sm font-bold text-gray-700 mb-1.5">Description</label>
+          <textarea 
+            id="description" 
+            rows="3" 
+            placeholder="Brief event description..." 
+            class="block w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-[#4285f4] focus:border-[#4285f4] transition-colors"
+          ></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="venue" class="block text-sm font-bold text-gray-700 mb-1.5">Venue</label>
+            <input 
+              type="text" 
+              id="venue" 
+              placeholder="e.g. PUP Main Campus" 
+              class="block w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-[#4285f4] focus:border-[#4285f4] transition-colors"
+            />
+          </div>
+          <div>
+            <label for="start_date" class="block text-sm font-bold text-gray-700 mb-1.5">Event Date *</label>
+            <input 
+              type="datetime-local" 
+              id="start_date" 
+              required 
+              class="block w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-[#4285f4] focus:border-[#4285f4] transition-colors"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Survey Details -->
+      <div class="space-y-5 border-t border-gray-100 pt-6">
+        <h3 class="text-lg font-bold text-slate-900">Survey Configuration</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="slug" class="block text-sm font-bold text-gray-700 mb-1.5">Survey Slug *</label>
+            <div class="flex rounded-2xl border border-gray-200 overflow-hidden focus-within:ring-1 focus-within:ring-[#4285f4] focus-within:border-[#4285f4] transition-colors">
+              <span class="inline-flex items-center px-3.5 bg-gray-50 border-r border-gray-200 text-gray-500 text-xs font-bold">
+                /survey/
+              </span>
+              <input 
+                type="text" 
+                id="slug" 
+                required 
+                placeholder="bwai2026-day2" 
+                class="block w-full border-none px-4 py-3 text-sm focus:outline-none"
+              />
+            </div>
+          </div>
+          <div>
+            <label for="attendance_code" class="block text-sm font-bold text-gray-700 mb-1.5">Attendance Code *</label>
+            <input 
+              type="text" 
+              id="attendance_code" 
+              required 
+              placeholder="e.g. BWAID2" 
+              class="block w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-[#4285f4] focus:border-[#4285f4] transition-colors"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label for="close_time" class="block text-sm font-bold text-gray-700 mb-1.5">Close Time (Optional)</label>
+          <input 
+            type="datetime-local" 
+            id="close_time" 
+            class="block w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-[#4285f4] focus:border-[#4285f4] transition-colors"
+          />
+        </div>
+      </div>
+
+      <!-- Footer Buttons -->
+      <div class="flex items-center justify-end gap-3 border-t border-gray-100 pt-6">
+        <a 
+          href="/admin" 
+          class="font-bold px-5 py-3 rounded-2xl border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors text-sm"
+        >
+          Cancel
+        </a>
+        <button 
+          type="submit" 
+          class="font-bold px-5 py-3 rounded-2xl bg-[#4285f4] text-white hover:bg-[#3367d6] transition-colors shadow-[0_8px_20px_rgba(66,133,244,0.15)] text-sm"
+        >
+          Save and Continue
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <script define:vars={{ defaultSchema }}>
+    const form = document.getElementById('create-event-form');
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const title = document.getElementById('title').value;
+      const description = document.getElementById('description').value;
+      const venue = document.getElementById('venue').value;
+      const start_date = document.getElementById('start_date').value;
+      const slug = document.getElementById('slug').value.trim().toLowerCase();
+      const attendance_code = document.getElementById('attendance_code').value;
+      const close_time = document.getElementById('close_time').value;
+
+      // Validate slug format
+      if (!/^[a-z0-9-_]+$/.test(slug)) {
+        window.dispatchEvent(new CustomEvent('show-toast', { 
+          detail: 'Slug can only contain lowercase letters, numbers, hyphens, and underscores.' 
+        }));
+        return;
+      }
+
+      const payload = {
+        event: {
+          title,
+          description,
+          venue,
+          start_date: start_date ? new Date(start_date).toISOString() : null,
+          end_date: start_date ? new Date(start_date).toISOString() : null
+        },
+        survey: {
+          slug,
+          attendance_code,
+          is_active: true,
+          close_time: close_time ? new Date(close_time).toISOString() : null,
+          questions_schema: defaultSchema
+        }
+      };
+
+      try {
+        const response = await fetch('/api/admin/save-survey', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+        if (response.ok && data.success) {
+          window.location.href = `/admin/events/${data.event.id}/survey`;
+        } else {
+          window.dispatchEvent(new CustomEvent('show-toast', { 
+            detail: data.error || 'Failed to save event.' 
+          }));
+        }
+      } catch (err) {
+        window.dispatchEvent(new CustomEvent('show-toast', { 
+          detail: 'An error occurred during save.' 
+        }));
+      }
+    });
+  </script>
+</Layout>

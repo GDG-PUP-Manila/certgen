@@ -73,11 +73,6 @@ src/
     ├── certificateWorkflow.service.ts
     ├── cert-generator.tsx
     └── pdf.service.ts
-
-data/
-├── event.json               # Static event catalog
-└── survey.json              # Survey schema seeds
-
 public/
 ├── templates/               # Optimized JPG backgrounds
 └── fonts/                   # GoogleSans-Bold.ttf
@@ -221,13 +216,7 @@ Upsert key: email + event_id (repository logic).
 | `display_name` | TEXT | Certificate fallback name |
 | `email` | TEXT | Must match form email |
 
-### Static Data
 
-#### `data/event.json`
-Array of event objects for landing page cards. Not the authoritative DB source for API lookups.
-
-#### `data/survey.json`
-Reference copy of survey schemas for seeding / documentation.
 
 ### Storage
 

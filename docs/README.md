@@ -37,7 +37,5 @@ SQL scripts live under [`sql/`](sql/README.md):
 
 | Path | Purpose |
 |------|---------|
-| [`data/event.json`](../data/event.json) | Landing page event cards |
-| [`data/survey.json`](../data/survey.json) | Survey schema reference / local seed |
 | [`README.md`](../README.md) | Project overview and getting started |
 | [`test/README.md`](../test/README.md) | Local test scripts |

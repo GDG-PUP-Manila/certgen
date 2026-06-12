@@ -7,6 +7,7 @@ export async function generateCertificate(data: {
   displayName: string;
   topOffset?: string;
   textColor?: string;
+  fontSize?: string;
 }) {
   // Load font
   const fontPath = path.resolve("./public/fonts/GoogleSans-Bold.ttf");
@@ -35,7 +36,7 @@ export async function generateCertificate(data: {
           width: "100%",
           display: "flex",
           justifyContent: "center",
-          fontSize: "50px",
+          fontSize: data.fontSize ?? "50px",
           color: data.textColor ?? "#1e293b",
           fontWeight: "bold",
           textAlign: "center",

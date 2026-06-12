@@ -31,21 +31,17 @@ pages/api/generate-cert.ts   →  certificateWorkflow.service.ts
 | `src/services/pdf.service.ts` | Background JPG + overlay → PDF |
 | `src/components/SurveyForm.tsx` | Multi-step schema-driven form engine |
 | `src/pages/survey/[slug].astro` | Dynamic survey page |
-| `data/event.json` | Static event cards for landing page |
-| `data/survey.json` | Survey schema reference / seed data |
 | `public/templates/` | Optimized JPG certificate backgrounds |
 | `public/fonts/GoogleSans-Bold.ttf` | Certificate name font (Satori) |
 | `docs/sql/migrations/SURVEY_MIGRATION.sql` | Canonical DB migration for survey tables |
 
 ## Adding a New Event / Survey
 
-1. Add event card to `data/event.json`.
-2. Insert survey row in Supabase (`survey` table) — see `docs/sql/migrations/SURVEY_MIGRATION.sql` or `docs/sql/seeds/`.
-3. Mirror schema in `data/survey.json` for local reference.
-4. Export certificate background from Canva → PNG.
-5. Optimize template: PNG → JPEG (~quality 90, MozJPEG) → save as `public/templates/{slug}-optimized.jpg`.
-6. Add slug branch in `certificateWorkflow.service.ts` (`templateFilename`, `textTopOffset`, `textColor`).
-7. Tune alignment with `npm run test:pdf` → inspect `test/output/test-output.pdf`.
+1. Export certificate background from Canva → PNG.
+2. Optimize template: PNG → JPEG (~quality 90, MozJPEG) → save as `public/templates/{slug}-optimized.jpg`.
+3. Create and configure the event via the Admin Panel UI at `/admin/events/new`.
+4. Upload and configure the certificate parameters (template URL, alignment offset, text color) directly inside the Visual Designer interface at `/admin/events/{event_id}/survey`.
+5. Tune alignment with `npm run test:pdf` → inspect `test/output/test-output.pdf`.
 
 ### Template optimization (Sharp)
 
@@ -71,14 +67,13 @@ Schema-driven steps from `questions_schema.steps`. Hardcoded step IDs:
 - PDFKit page: A4 landscape (**841.89 × 595.28 pt**).
 - Only the **participant name** is rendered dynamically; everything else is baked into the JPG template.
 
-Per-slug overrides live in `certificateWorkflow.service.ts`:
+Certificate properties (template, text offset, color) are resolved dynamically from the `cert_config` JSONB column of the `survey` table. Sensible fallbacks are applied automatically if it is empty:
 
-| Slug | Template | topOffset | textColor |
-|------|----------|-----------|-----------|
-| default | `base-template-optimized.jpg` | `290px` | `#1e293b` |
-| `bwai2026-day1` | `bwai-template-optimized.jpg` | `310px` | `#1e293b` |
-| `bwai2026-day2` | `bwai2026-day2-optimized.jpg` | `310px` | `#1e293b` |
-| `pm-workshop` | `pm-workshop-optimized.jpg` | `290px` | `#073b1a` |
+| Parameter | Database Key | Default |
+|-----------|--------------|---------|
+| Template Image | `template_url` (or `templateFilename`) | `base-template-optimized.jpg` |
+| Vertical Offset | `text_top_offset` | `290px` |
+| Text Color | `text_color` | `#1e293b` |
 
 ## Environment Variables
 
