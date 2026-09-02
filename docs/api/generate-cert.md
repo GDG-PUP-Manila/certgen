@@ -1,4 +1,4 @@
-# API — `POST /api/generate-cert`
+# API - `POST /api/generate-cert`
 
 Generates a personalized PDF certificate, uploads it to Supabase Storage, saves the survey response, and returns the PDF to the client.
 
@@ -66,7 +66,7 @@ As sent by [`SurveyForm.tsx`](../../src/components/SurveyForm.tsx):
 
 ---
 
-## Response — Success (200)
+## Response - Success (200)
 
 | Header | Value |
 |--------|-------|
@@ -80,7 +80,7 @@ As sent by [`SurveyForm.tsx`](../../src/components/SurveyForm.tsx):
 
 ---
 
-## Response — Error
+## Response - Error
 
 All error responses are JSON:
 
@@ -92,7 +92,7 @@ All error responses are JSON:
 |--------|------|
 | **400** | Missing `email` or `event_id`; invalid attendance code; survey closed/expired; GDG ID/email mismatch; missing name; event/survey not found; save failure |
 | **403** | Production origin check failed (`Origin` present and does not contain `"gdg"`) |
-| **429** | Rate limit exceeded (currently **disabled** — code commented out) |
+| **429** | Rate limit exceeded (currently **disabled** - code commented out) |
 | **500** | Unexpected server errors |
 
 ### Known error messages (400)
@@ -109,14 +109,14 @@ All error responses are JSON:
 | `Please provide your full name for the certificate.` | Missing display name |
 | `We encountered an issue saving your response. Please try again.` | DB upsert failure |
 
-Client-side (before fetch): invalid attendance code shows a toast — `"Invalid Attendance Code. Please check with the organizers."`
+Client-side (before fetch): invalid attendance code shows a toast - `"Invalid Attendance Code. Please check with the organizers."`
 
 ---
 
 ## Guards & middleware
 
 1. **Origin check** (production only): rejects if `Origin` header is present and does not include `"gdg"`. Localhost is allowed in dev.
-2. **Rate limit** (disabled): in-memory 5 req/min per IP — commented out in handler.
+2. **Rate limit** (disabled): in-memory 5 req/min per IP - commented out in handler.
 3. **Input validation:** `email` and `event_id` required at API layer.
 
 ---
@@ -132,7 +132,7 @@ Executed by `processCertificateWorkflow()`:
 5. Resolve display name (form → member fallback)
 6. Validate GDG ID email match (if provided)
 7. Truncate name to 40 characters
-8. Select template config by `survey.slug`
+8. Resolve template config from `survey.cert_config` (JSONB)
 9. Generate name overlay PNG (Satori → Resvg)
 10. Composite onto JPG template → PDF (PDFKit)
 11. Upload to Supabase Storage (`certificates/{event_id}/{identifier}.pdf`)
@@ -163,6 +163,7 @@ On failure: parse `response.json()` and read `error` field.
 
 ## Related
 
-- [SDD § API](../sdd.md) — broader system design
-- [AGENTS.md](../../AGENTS.md) — certificate dimensions and slug overrides
-- [CONTRIBUTING.md](../../CONTRIBUTING.md) — PR checklist and new-event workflow
+- [SDD § API](../sdd.md) - broader system design
+- [AGENTS.md](../../AGENTS.md) - certificate dimensions and `cert_config`
+- [CONTRIBUTING.md](../../CONTRIBUTING.md) - PR checklist and new-event workflow
+- [Operational state](../state.md) - Operate milestone

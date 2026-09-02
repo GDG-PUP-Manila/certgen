@@ -1,14 +1,14 @@
-# SDD — CertGen Software Design Document
+# SDD - CertGen Software Design Document
 
 **System:** GDG PUP Certificate Generator  
 **Version:** 0.0.1  
-**Last updated:** May 2026
+**Last updated:** 2026-09-02
 
 ---
 
 ## 1. System Overview
 
-CertGen is a server-side rendered Astro application deployed on Vercel. The certificate pipeline runs entirely in a Node.js serverless function — no headless browser, no client-side PDF generation.
+CertGen is a server-side rendered Astro application deployed on Vercel. The certificate pipeline runs entirely in a Node.js serverless function - no headless browser, no client-side PDF generation.
 
 ```
 ┌─────────────┐     POST /api/generate-cert      ┌──────────────────────────┐
@@ -58,12 +58,27 @@ src/
 ├── layouts/
 │   └── Layout.astro         # HTML shell, SEO, fonts
 ├── lib/
-│   └── supabase.ts          # Service-role Supabase client
+│   ├── supabase.ts          # Service-role Supabase client
+│   └── auth.ts              # Admin session (ADMIN_PASSWORD hash)
 ├── pages/
-│   ├── index.astro          # Landing page
+│   ├── index.astro          # Landing page (events from Supabase)
 │   ├── survey/[slug].astro  # Survey route
+│   ├── admin/
+│   │   ├── login.astro
+│   │   ├── index.astro
+│   │   └── events/
+│   │       ├── new.astro
+│   │       └── [id]/
+│   │           ├── survey.astro    # Visual Designer + cert_config
+│   │           └── responses.astro
 │   └── api/
-│       └── generate-cert.ts # Single API endpoint
+│       ├── generate-cert.ts
+│       └── admin/
+│           ├── login.ts
+│           ├── logout.ts
+│           ├── save-survey.ts
+│           ├── upload-template.ts
+│           └── delete-response.ts
 ├── repositories/
 │   ├── event.repository.ts
 │   ├── survey.repository.ts
@@ -86,7 +101,7 @@ docs/                        # Project documentation + SQL migrations
 
 ### `POST /api/generate-cert`
 
-> **Canonical contract:** [docs/api/generate-cert.md](api/generate-cert.md) — request/response shapes, error messages, workflow steps.
+> **Canonical contract:** [docs/api/generate-cert.md](api/generate-cert.md) - request/response shapes, error messages, workflow steps.
 
 **Handler:** `src/pages/api/generate-cert.ts`
 
@@ -106,7 +121,7 @@ docs/                        # Project documentation + SQL migrations
 }
 ```
 
-#### Response — Success (200)
+#### Response - Success (200)
 
 | Header | Value |
 |--------|-------|
@@ -116,7 +131,7 @@ docs/                        # Project documentation + SQL migrations
 
 Body: raw PDF bytes.
 
-#### Response — Error (400 / 403 / 500)
+#### Response - Error (400 / 403 / 500)
 
 ```json
 { "error": "Human-readable message" }
@@ -125,7 +140,7 @@ Body: raw PDF bytes.
 #### Middleware / Guards
 
 1. **Origin check** (prod only): reject if `Origin` present and does not contain `"gdg"`.
-2. **Rate limit** (disabled): in-memory 5 req/min/IP — commented out.
+2. **Rate limit** (disabled): in-memory 5 req/min/IP - commented out.
 3. **Input validation:** `email` and `event_id` required.
 
 ---
@@ -145,7 +160,7 @@ Body: raw PDF bytes.
 | 5 | Resolve `displayName` from form or `gdg_members` |
 | 6 | Validate GDG ID email match (if provided) |
 | 7 | Truncate name to 40 chars |
-| 8 | Select template config by `survey.slug` |
+| 8 | Resolve template config from `survey.cert_config` (JSONB) |
 | 9 | `generateCertificate()` → PNG buffer |
 | 10 | `convertPngToPdf()` → PDF buffer |
 | 11 | `uploadCertificate()` → public URL |
@@ -191,8 +206,9 @@ Referenced by `event.repository.ts`. Fields used: `id`, `title`, etc.
 | `attendance_code` | TEXT | Secret code |
 | `close_time` | TIMESTAMPTZ | Optional expiry |
 | `questions_schema` | JSONB | Form definition |
+| `cert_config` | JSONB | Template URL, text offset, color, font size |
 
-See `docs/sql/migrations/SURVEY_MIGRATION.sql` for DDL.
+See `docs/sql/migrations/SURVEY_MIGRATION.sql` and `ADD_CERT_CONFIG.sql` for DDL.
 
 #### `survey_response`
 
@@ -256,27 +272,32 @@ CONSENT → STATUS → [PUPian | Non-PUPian personal info] → EVALUATION → [G
 
 ## 8. Certificate Template Configuration
 
-Per-slug map in `certificateWorkflow.service.ts`:
+Layout comes from `survey.cert_config` (JSONB), set in the Admin Visual Designer (`/admin/events/{event_id}/survey`). The workflow reads it in `certificateWorkflow.service.ts`:
 
 ```typescript
-let templateFilename = "base-template-optimized.jpg";
-let textTopOffset = "290px";
-let textColor = "#1e293b";
+const certConfig =
+  survey.cert_config && typeof survey.cert_config === "object"
+    ? (survey.cert_config as Record<string, string>)
+    : {};
 
-if (survey.slug === "pm-workshop") {
-  templateFilename = "pm-workshop-optimized.jpg";
-  textTopOffset = "290px";
-  textColor = "#073b1a";
-}
-// ... other slugs
+const templateFilename =
+  certConfig.template_url ||
+  certConfig.templateFilename ||
+  "base-template-optimized.jpg";
+const textTopOffset = certConfig.text_top_offset || "290px";
+const textColor = certConfig.text_color || "#1e293b";
+const textFontSize = certConfig.text_font_size || "50px";
 ```
+
+Do not add per-slug `if` branches for template selection.
 
 ### Template Asset Pipeline
 
 1. Design in Canva → export PNG
 2. Optimize: `sharp().jpeg({ quality: 90, mozjpeg: true })`
-3. Commit JPG to `public/templates/`
-4. Tune `topOffset` via `npm run test:pdf`
+3. Place JPG in `public/templates/` (or upload via Admin)
+4. Set `cert_config` in Admin Visual Designer
+5. Tune offsets via `npm run test:pdf`
 
 ---
 
@@ -302,7 +323,8 @@ if (survey.slug === "pm-workshop") {
 2. Set environment variables:
    - `SUPABASE_URL`
    - `SUPABASE_SERVICE_ROLE_KEY`
-3. Deploy — Astro build + serverless functions auto-provisioned
+   - `ADMIN_PASSWORD`
+3. Deploy - Astro build + serverless functions auto-provisioned
 
 ### Local Development
 
@@ -335,18 +357,20 @@ User-facing errors (400): not found, invalid code, email mismatch, missing name,
 
 ## 12. Dependencies & Constraints
 
-- `@resvg/resvg-js` platform-specific binaries — must not be bundled
+- `@resvg/resvg-js` platform-specific binaries - must not be bundled
 - In-memory rate limiter ineffective across multiple serverless instances
-- PDFKit embeds JPG as-is — use pre-optimized templates for file size
-- Satori only supports subset of CSS — keep cert overlay layout minimal
+- PDFKit embeds JPG as-is - use pre-optimized templates for file size
+- Satori only supports subset of CSS - keep cert overlay layout minimal
 - `GoogleSans-Bold.ttf` must exist in `public/fonts/` for generation to work
 
 ---
 
 ## 13. Related Documents
 
+- [Operational state](state.md)
 - [PRD](prd.md)
 - [Design System](design.md)
 - [Agent Guide](../AGENTS.md)
 - [SQL scripts](sql/README.md)
 - [Survey Migration SQL](sql/migrations/SURVEY_MIGRATION.sql)
+- [ADD_CERT_CONFIG.sql](sql/migrations/ADD_CERT_CONFIG.sql)

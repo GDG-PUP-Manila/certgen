@@ -6,7 +6,7 @@ alwaysApply: false
 
 # QA
 
-After **code changes**, follow [.cursor/skills/post-task-qa/SKILL.md](../../.cursor/skills/post-task-qa/SKILL.md) — run `npm run test:qa` and report pass/fail/skip before marking work done.
+After **code changes**, follow [.cursor/skills/post-task-qa/SKILL.md](../../.cursor/skills/post-task-qa/SKILL.md) - run `npm run test:qa` and report pass/fail/skip before marking work done.
 
 Before release or new-event launch, follow [docs/qa.md](../../docs/qa.md).
 

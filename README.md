@@ -10,7 +10,8 @@ CertGen is a hyper-fast, dynamically-scalable Serverless application built for G
 
 | Document | Description |
 |----------|-------------|
-| [**Docs index**](docs/README.md) | Start here — links to all project docs |
+| [**Docs index**](docs/README.md) | Start here - links to all project docs |
+| [**Operational state**](docs/state.md) | **Operate** milestone - live URL, env vars, admin UI, handover |
 | [PRD](docs/prd.md) | Product requirements |
 | [SDD](docs/sdd.md) | Software design & architecture |
 | [Design](docs/design.md) | UI & certificate design system |
@@ -24,15 +25,15 @@ CertGen is a hyper-fast, dynamically-scalable Serverless application built for G
 
 ## The Architecture
 
-This project uses a **Serverless Node Architecture** on Vercel (not Edge — Resvg requires native bindings).
+This project uses a **Serverless Node Architecture** on Vercel (not Edge - Resvg requires native bindings).
 
 - **Framework:** [Astro](https://astro.build/) (Server-Side Rendering via Vercel)
 - **Frontend / UI:** [React](https://react.dev/) + Tailwind CSS
 - **Database / Storage:** [Supabase](https://supabase.com/) (PostgREST + Storage bucket)
 - **Generation Engine:**
-  - `satori` — renders participant name as SVG
-  - `@resvg/resvg-js` — rasterizes to transparent PNG
-  - `pdfkit` — composites background JPG + name overlay into PDF
+  - `satori` - renders participant name as SVG
+  - `@resvg/resvg-js` - rasterizes to transparent PNG
+  - `pdfkit` - composites background JPG + name overlay into PDF
 
 ---
 
@@ -41,11 +42,11 @@ This project uses a **Serverless Node Architecture** on Vercel (not Edge — Res
 ### 1. Dynamic React Form Engine
 `SurveyForm.tsx` builds the survey from a JSON schema fetched dynamically from the database (`survey.questions_schema`).
 - **Conditional paths** for PUPian vs Non-PUPian attendees
-- **Fail-safe resilience** — form state stays in React memory for retry on failure
+- **Fail-safe resilience** - form state stays in React memory for retry on failure
 - **Attendance code** required before certificate generation
 
 ### 2. Instant PDF Generation
-`POST /api/generate-cert` runs the full workflow in ~1–2 seconds:
+`POST /api/generate-cert` runs the full workflow in ~1-2 seconds:
 1. Validates attendance code and survey status
 2. Renders name overlay via Satori/Resvg
 3. Composites onto optimized JPG template via PDFKit
@@ -62,7 +63,7 @@ This project uses a **Serverless Node Architecture** on Vercel (not Edge — Res
 
 ### Prerequisites
 - [Node.js](https://nodejs.org/) v22.12.0+ (see `package.json`)
-- Supabase project with survey tables — see [`docs/sql/`](docs/sql/README.md)
+- Supabase project with survey tables - see [`docs/sql/`](docs/sql/README.md)
 
 ### 1. Install Dependencies
 ```bash
@@ -74,6 +75,7 @@ Create a `.env` file in the project root:
 ```env
 SUPABASE_URL="YOUR_SUPABASE_PROJECT_URL"
 SUPABASE_SERVICE_ROLE_KEY="YOUR_SUPABASE_SERVICE_ROLE_KEY"
+ADMIN_PASSWORD="YOUR_ADMIN_PASSWORD"
 ```
 
 ### 3. Run the Dev Server
@@ -96,7 +98,7 @@ CertGen uses `@astrojs/vercel` (serverless Node) because `@resvg/resvg-js` canno
 
 1. Push this repository to **GitHub**
 2. Import into **Vercel Dashboard**
-3. Set environment variables: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
+3. Set environment variables: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `ADMIN_PASSWORD`
 4. Deploy
 
 ---
@@ -110,19 +112,21 @@ certgen/
 ├── .cursor/rules/               # Cursor agent rules (auto-loaded)
 ├── docs/
 │   ├── README.md                # Documentation index
+│   ├── state.md                 # Operate milestone & handover
 │   ├── api/generate-cert.md     # API contract
 │   ├── qa.md                    # QA test plans & release checklist
 │   ├── prd.md · sdd.md · design.md
 │   └── sql/
-│       ├── migrations/          # DDL (survey tables)
+│       ├── migrations/          # DDL (survey tables + cert_config)
 │       ├── seeds/               # Event/survey seed data
-│       └── schema/              # Full schema snapshots
+│       └── schema/              # Full schema snapshots (stale)
 ├── public/
 │   ├── templates/               # Optimized JPG certificate backgrounds
 │   └── fonts/                   # GoogleSans-Bold.ttf for Satori
 ├── src/
 │   ├── components/SurveyForm.tsx
 │   ├── pages/api/generate-cert.ts
+│   ├── pages/admin/             # Admin UI
 │   ├── repositories/            # Supabase data access
 │   └── services/                # Cert workflow, Satori, PDFKit
 └── test/                        # Local test scripts & output
@@ -132,7 +136,7 @@ certgen/
 
 ## Support
 
-Maintained by **Gerald S. Berongoy** for [GDG PUP Manila](https://gdgpup.org).
+**Owner:** GDG PUP Technology (incoming CTO).  
+**Handover:** Outgoing CTO Carlos Jerico Dela Torre, 2026-09-02. See [docs/state.md](docs/state.md).
 
-- GitHub: [geraldsberongoy](https://github.com/geraldsberongoy)
-- LinkedIn: [in/geraldberongoy](https://linkedin.com/in/geraldberongoy)
+Originally built with contributions from Gerald S. Berongoy for [GDG PUP Manila](https://gdgpup.org).

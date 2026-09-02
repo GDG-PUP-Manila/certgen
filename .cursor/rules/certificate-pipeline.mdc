@@ -6,7 +6,14 @@ alwaysApply: false
 
 # Certificate Pipeline
 
-Per-slug config in `certificateWorkflow.service.ts`: `templateFilename`, `textTopOffset`, `textColor`.
+Template layout comes from `survey.cert_config` JSONB (Admin Visual Designer), resolved in `certificateWorkflow.service.ts`:
+
+- `template_url` / `templateFilename`
+- `text_top_offset`
+- `text_color`
+- `text_font_size`
+
+Do **not** add per-slug `if` branches for template selection.
 
 ## Dimensions
 
@@ -19,18 +26,20 @@ Per-slug config in `certificateWorkflow.service.ts`: `templateFilename`, `textTo
 ## New event template
 
 1. Export Canva → PNG → optimize to `public/templates/{slug}-optimized.jpg` (MozJPEG ~90)
-2. Add slug branch in `certificateWorkflow.service.ts`
+2. Set `cert_config` via Admin Visual Designer at `/admin/events/{event_id}/survey`
 3. Tune with `npm run test:pdf` → inspect `test/output/test-output.pdf`
 
 ```bash
 node -e "const sharp=require('sharp'); sharp('public/templates/my-cert.png').jpeg({ quality: 90, mozjpeg: true }).toFile('public/templates/my-event-optimized.jpg').then(console.log);"
 ```
 
-## Slug overrides (current)
+## Defaults (when `cert_config` empty)
 
-| Slug | Template | topOffset | textColor |
-|------|----------|-----------|-----------|
-| default | `base-template-optimized.jpg` | `290px` | `#1e293b` |
-| `bwai2026-day1` | `bwai-template-optimized.jpg` | `310px` | `#1e293b` |
-| `bwai2026-day2` | `bwai2026-day2-optimized.jpg` | `310px` | `#1e293b` |
-| `pm-workshop` | `pm-workshop-optimized.jpg` | `290px` | `#073b1a` |
+| Field | Default |
+|-------|---------|
+| template | `base-template-optimized.jpg` |
+| `text_top_offset` | `290px` |
+| `text_color` | `#1e293b` |
+| `text_font_size` | `50px` |
+
+Historical seed values for older surveys: `docs/sql/seeds/DYNAMIC_SEED.sql`.

@@ -1,8 +1,8 @@
-# QA — CertGen Quality Assurance Guide
+# QA - CertGen Quality Assurance Guide
 
 **Product:** GDG PUP Certificate Generator  
 **URL:** https://cert.gdgpup.org  
-**Last updated:** May 2026
+**Last updated:** 2026-09-02
 
 Manual and scripted test plans for releases, new events, and regression. Maps to [PRD acceptance criteria](prd.md#9-acceptance-criteria-release) and [API contract](api/generate-cert.md).
 
@@ -12,12 +12,13 @@ Manual and scripted test plans for releases, new events, and regression. Maps to
 
 | In scope | Out of scope (current version) |
 |----------|--------------------------------|
-| Landing page & survey routing | User login / accounts |
-| Multi-step survey (PUPian / non-PUPian) | Admin dashboard |
-| Attendance code validation | Email delivery of certificates |
-| PDF generation & download | Certificate QR / public verification |
-| Supabase persistence | Multi-language surveys |
-| Closed-survey behavior | Batch CSV regeneration |
+| Landing page & survey routing | Attendee user accounts |
+| Multi-step survey (PUPian / non-PUPian) | Email delivery of certificates |
+| Attendance code validation | Certificate QR / public verification |
+| PDF generation & download | Multi-language surveys |
+| Supabase persistence | Batch CSV regeneration |
+| Closed-survey behavior | |
+| Admin UI (`/admin`) for events, cert_config, responses | |
 
 ---
 
@@ -37,7 +38,7 @@ Manual and scripted test plans for releases, new events, and regression. Maps to
 Use after any deploy or cert-pipeline change.
 
 - [ ] Landing page loads; event cards visible
-- [ ] Open `/survey/{slug}` for an active event — form renders
+- [ ] Open `/survey/{slug}` for an active event - form renders
 - [ ] Complete survey with valid attendance code → PDF downloads
 - [ ] PDF shows correct participant name on correct template
 - [ ] Wrong attendance code → toast error, no download
@@ -51,11 +52,11 @@ Use after any deploy or cert-pipeline change.
 
 | ID | Steps | Expected |
 |----|-------|----------|
-| QA-01 | Open `/` | Events from `data/event.json` listed with title, description, link |
+| QA-01 | Open `/` | Events from Supabase listed with title, description, link |
 | QA-02 | Click event survey link | Navigates to `/survey/{slug}` |
 | QA-03 | Visit `/survey/invalid-slug-xyz` | 404 (event not found) |
 
-### 4.2 Survey flow — happy path (US-01 – US-06)
+### 4.2 Survey flow - happy path (US-01 - US-06)
 
 | ID | Steps | Expected |
 |----|-------|----------|
@@ -81,7 +82,7 @@ Use after any deploy or cert-pipeline change.
 | ID | Steps | Expected |
 |----|-------|----------|
 | QA-30 | Download PDF after success | File named `GDG-Certificate-{id}.pdf`; opens as A4 landscape |
-| QA-31 | Inspect name placement | Name centered at slug-specific offset; color matches config |
+| QA-31 | Inspect name placement | Name centered at `cert_config` offset; color matches `cert_config` |
 | QA-32 | Name exactly 40 characters | Renders fully (no truncation) |
 | QA-33 | Name > 40 characters | Truncated to 37 chars + `...` on certificate |
 | QA-34 | Special characters in name (é, ñ, hyphen) | Renders without layout break |
@@ -135,19 +136,12 @@ npm run test:pdf   # → test/output/test-output.pdf
 | Template file | `{slug}-optimized.jpg` exists in `public/templates/` |
 | Resolution | Background sharp at 100% zoom; no visible JPEG artifacts |
 | Name position | Horizontally centered; vertical offset matches design |
-| Name color | Matches slug config in `certificateWorkflow.service.ts` |
+| Name color | Matches `survey.cert_config.text_color` (Admin Visual Designer) |
 | Long name | 40+ char name does not overflow template bounds |
 | Short name | Single-word name still centered |
 | PDF page size | A4 landscape (841.89 × 595.28 pt) |
 
-**Slug reference:**
-
-| Slug | Template | topOffset | textColor |
-|------|----------|-----------|-----------|
-| default | `base-template-optimized.jpg` | `290px` | `#1e293b` |
-| `bwai2026-day1` | `bwai-template-optimized.jpg` | `310px` | `#1e293b` |
-| `bwai2026-day2` | `bwai2026-day2-optimized.jpg` | `310px` | `#1e293b` |
-| `pm-workshop` | `pm-workshop-optimized.jpg` | `290px` | `#073b1a` |
+**Defaults when `cert_config` is empty:** template `base-template-optimized.jpg`, offset `290px`, color `#1e293b`. Historical seed values for older events live in `docs/sql/seeds/DYNAMIC_SEED.sql`.
 
 ---
 
@@ -155,15 +149,15 @@ npm run test:pdf   # → test/output/test-output.pdf
 
 Complete before announcing a new survey.
 
-- [ ] Event card added to `data/event.json`
-- [ ] Survey row seeded in Supabase (`docs/sql/seeds/`)
+- [ ] Event + survey created via Admin UI (`/admin/events/new`) or SQL seed
 - [ ] `attendance_code` and `close_time` set correctly
-- [ ] Schema mirrored in `data/survey.json`
-- [ ] Template optimized JPG uploaded to `public/templates/`
-- [ ] Slug branch added in `certificateWorkflow.service.ts`
-- [ ] `npm run test:pdf` — visual pass
+- [ ] `questions_schema` configured (Admin or seed)
+- [ ] Template optimized JPG in `public/templates/` (or uploaded via Admin)
+- [ ] `cert_config` set in Admin Visual Designer (`/admin/events/{id}/survey`) - no code slug branch
+- [ ] `npm run test:pdf` - visual pass
 - [ ] Full manual flow on `/survey/{slug}` (PUPian + non-PUPian paths)
 - [ ] Supabase row + Storage object verified after test submit
+- [ ] Landing page shows the event from Supabase
 - [ ] Production smoke test on live URL
 
 ---
@@ -188,7 +182,7 @@ Maps to [PRD §9 Acceptance Criteria](prd.md#9-acceptance-criteria-release).
 |--------|---------|---------|
 | PDF pipeline | `npm run test:pdf` | Offline Satori → Resvg → PDFKit without Supabase |
 | Post-task smoke | `npm run test:qa` | PDF + API negative tests (API needs `npm run dev`) |
-| Stress test | `node test/stress-test.mjs` | Concurrent API load against production — **use carefully** |
+| Stress test | `node test/stress-test.mjs` | Concurrent API load against production - **use carefully** |
 
 See [test/README.md](../test/README.md).
 
@@ -244,8 +238,8 @@ Full error catalog: [api/generate-cert.md](api/generate-cert.md).
 
 ## Related docs
 
-- [PRD](prd.md) — user stories & acceptance criteria
-- [API: generate-cert](api/generate-cert.md) — endpoint contract & errors
-- [CONTRIBUTING.md](../CONTRIBUTING.md) — dev setup & PR checklist
-- [AGENTS.md](../AGENTS.md) — architecture for agents
-- [Design](design.md) — visual specs for certificate QA
+- [PRD](prd.md) - user stories & acceptance criteria
+- [API: generate-cert](api/generate-cert.md) - endpoint contract & errors
+- [CONTRIBUTING.md](../CONTRIBUTING.md) - dev setup & PR checklist
+- [AGENTS.md](../AGENTS.md) - architecture for agents
+- [Design](design.md) - visual specs for certificate QA

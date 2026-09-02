@@ -1,9 +1,12 @@
-# PRD — CertGen Product Requirements Document
+# PRD - CertGen Product Requirements Document
 
 **Product:** GDG PUP Certificate Generator (CertGen)  
 **URL:** https://cert.gdgpup.org  
-**Maintainer:** Gerald S. Berongoy ([GitHub](https://github.com/geraldsberongoy) · [LinkedIn](https://linkedin.com/in/geraldberongoy))
-**Last updated:** May 2026
+**Owner:** GDG PUP Technology (incoming CTO)  
+**Handover:** Outgoing CTO Carlos Jerico Dela Torre, 2026-09-02  
+**Last updated:** 2026-09-02  
+
+Operational reality: [state.md](state.md).
 
 ---
 
@@ -25,7 +28,7 @@ Manual certificate distribution is slow, error-prone, and does not scale across 
 | Instant certificate delivery | PDF generated and downloaded within ~2 seconds of survey submit |
 | High-quality certificates | Name rendered sharply on official event template |
 | Structured feedback | 100% of certificates tied to a saved survey response |
-| Low operational overhead | New events added via JSON + Supabase seed, no code deploy for copy changes |
+| Low operational overhead | New events via Admin UI + `cert_config`; no code deploy for copy or layout |
 | Abuse resistance | Invalid attendance codes rejected; origin-restricted API in production |
 
 ---
@@ -44,10 +47,10 @@ Manual certificate distribution is slow, error-prone, and does not scale across 
 - Email must match database record
 
 ### Organizer / Admin (Secondary)
-- Configures surveys in Supabase (`survey` table)
-- Sets attendance codes and close times per event
-- Adds event cards to landing page (`data/event.json`)
-- Uploads certificate templates to `public/templates/`
+- Uses Admin UI at `/admin` (password: `ADMIN_PASSWORD`)
+- Creates events and surveys, sets attendance codes and close times
+- Configures certificate layout via Visual Designer (`cert_config`)
+- Reviews survey responses; uploads templates as needed
 
 ---
 
@@ -72,14 +75,15 @@ Manual certificate distribution is slow, error-prone, and does not scale across 
 ### Admin / Ops
 - **US-11:** As an organizer, I can close a survey by setting `is_active = false` or a past `close_time`.
 - **US-12:** As an organizer, I can configure a unique attendance code per survey.
-- **US-13:** As an organizer, I can add event-specific certificate templates and name styling.
+- **US-13:** As an organizer, I can set event-specific certificate templates and name styling via Admin Visual Designer (`cert_config`).
+- **US-14:** As an organizer, I can create and manage events and surveys in `/admin` without editing JSON files in the repo.
 
 ---
 
 ## 5. Functional Requirements
 
 ### FR-01: Event Discovery
-- Landing page lists events from `data/event.json`.
+- Landing page lists events from Supabase (`event` table via repositories).
 - Survey links resolved via Supabase `survey.slug` → `/survey/{slug}`.
 
 ### FR-02: Dynamic Survey Engine
@@ -95,14 +99,17 @@ Manual certificate distribution is slow, error-prone, and does not scale across 
 ### FR-04: Certificate Generation
 - Output format: **PDF** (A4 landscape).
 - Dynamic field: participant full name only.
-- Template, text position, and color configured per survey slug.
+- Template, text position, color, and font size from `survey.cert_config` JSONB.
 
 ### FR-05: Persistence
 - Survey response saved to `survey_response` with `certificate_url`.
 - PDF uploaded to Supabase Storage: `certificates/{event_id}/{identifier}.pdf`.
 
 ### FR-06: Survey Lifecycle
-- Inactive or expired surveys show "Survey is Closed" — no form, no generation.
+- Inactive or expired surveys show "Survey is Closed" - no form, no generation.
+
+### FR-07: Admin UI
+- Password-gated Admin at `/admin` for event/survey CRUD, Visual Designer, and responses.
 
 ---
 
@@ -112,17 +119,16 @@ Manual certificate distribution is slow, error-prone, and does not scale across 
 |----------|-------------|
 | Performance | Certificate generation < 2s on warm serverless instance |
 | Availability | Serverless auto-scaling via Vercel |
-| Security | Service role key server-side only; CSRF origin check in prod |
+| Security | Service role key server-side only; CSRF origin check in prod; admin password session |
 | Privacy | Survey data confidential; DPA consent required |
 | Accessibility | Readable forms, toast error feedback |
-| Maintainability | Schema-driven surveys minimize per-event code changes |
+| Maintainability | Schema-driven surveys + `cert_config` minimize per-event code changes |
 
 ---
 
 ## 7. Out of Scope (Current Version)
 
-- User login / attendee accounts
-- Admin dashboard for survey management (Supabase console used instead)
+- Attendee user accounts / login
 - Email delivery of certificates (download only)
 - Certificate verification / QR public lookup
 - Multi-language surveys
@@ -130,14 +136,9 @@ Manual certificate distribution is slow, error-prone, and does not scale across 
 
 ---
 
-## 8. Current Events (May 2026)
+## 8. Current Events
 
-| Event | Survey Slug | Attendance Code |
-|-------|-------------|-----------------|
-| COSMOS 2026 | `cosmos-2026` | `SparkAtCosmos` |
-| Build with AI Day 1 | `bwai2026-day1` | `BWAID1` |
-| Build with AI Day 2 | *(event in catalog; survey seed TBD)* | — |
-| PM Workshop 2026 | `pm-workshop` | `PMonTop` |
+Active events and attendance codes live in Supabase and the Admin UI. Do not treat a static catalog in this PRD as authoritative. Historical seed examples (cosmos, bwai, pm-workshop) appear under `docs/sql/seeds/`.
 
 ---
 
@@ -150,11 +151,13 @@ Manual certificate distribution is slow, error-prone, and does not scale across 
 - [ ] GDG ID + email mismatch rejected
 - [ ] Name > 40 chars truncated safely
 - [ ] Production API rejects cross-origin requests without `gdg` in Origin
+- [ ] Organizer can create/configure an event and `cert_config` via Admin UI
 
 ---
 
 ## 10. Documentation
 
+- [Operational state](state.md)
 - [Docs index](README.md)
 - [SDD](sdd.md) · [Design](design.md) · [QA](qa.md) · [SQL scripts](sql/README.md)
 
@@ -163,7 +166,7 @@ Manual certificate distribution is slow, error-prone, and does not scale across 
 ## 11. Future Considerations
 
 - Re-enable IP rate limiting (Redis/KV for multi-instance consistency)
-- Admin UI for survey CRUD
 - Email certificate link via Resend/SendGrid
 - Certificate verification endpoint
 - Automated template optimization script in `package.json`
+- Route all admin Supabase access exclusively through repositories
