@@ -2,7 +2,16 @@
 
 Guidance for AI agents and contributors working on **GDG PUP CertGen** (`cert.gdgpup.org`).
 
-**Ops / handover:** [docs/state.md](docs/state.md) (Operate milestone). Owner: GDG PUP Technology (incoming CTO). Handover from outgoing CTO Carlos Jerico Dela Torre, 2026-09-02.
+**Ops / handover:** [docs/state.md](docs/state.md) (Operate milestone). Owner: GDG PUP Technology (incoming CTO). Handover 2026-09-02.
+
+## Read order (every session)
+
+1. [docs/state.md](docs/state.md) - Operate position, env, admin, SQL order.
+2. [docs/index.md](docs/index.md) - inventory of docs that exist.
+3. [FLAGS.md](FLAGS.md) - open improvement register.
+4. Task docs as needed: PRD, SDD, Design, QA, API, SQL, CONTRIBUTING.
+
+Do not auto-load archive paths (none present for CertGen beyond stale `docs/sql/schema/`).
 
 ## Project Summary
 
@@ -132,7 +141,9 @@ When updating docs, prefer **code and [docs/state.md](docs/state.md)** over olde
 ## Related Docs
 
 - [Operational state](docs/state.md)
-- [Docs index](docs/README.md)
+- [Docs index](docs/index.md)
+- [FLAGS.md](FLAGS.md)
+- [Docs README](docs/README.md)
 - [CONTRIBUTING.md](CONTRIBUTING.md) - PR checklist, new-event workflow
 - [API: generate-cert](docs/api/generate-cert.md) - endpoint contract
 - [QA](docs/qa.md) - test plans & release checklist

@@ -10,8 +10,9 @@ CertGen is a hyper-fast, dynamically-scalable Serverless application built for G
 
 | Document | Description |
 |----------|-------------|
-| [**Docs index**](docs/README.md) | Start here - links to all project docs |
+| [**Docs index**](docs/index.md) | Inventory of docs that exist (also [docs/README.md](docs/README.md)) |
 | [**Operational state**](docs/state.md) | **Operate** milestone - live URL, env vars, admin UI, handover |
+| [**FLAGS**](FLAGS.md) | Open improvement register (docs handover) |
 | [PRD](docs/prd.md) | Product requirements |
 | [SDD](docs/sdd.md) | Software design & architecture |
 | [Design](docs/design.md) | UI & certificate design system |
@@ -136,14 +137,14 @@ certgen/
 
 ## Contributors
 
-Built for [GDG PUP Manila](https://gdgpup.org) by:
+This project is made possible by the GDG PUP community:
 
-| Role | Contributor |
+| Role | Name |
 | --- | --- |
-| Lead development | [Gerald S. Berongoy](https://www.linkedin.com/in/geraldberongoy/) |
-| CTO | [Carlos Jerico Dela Torre](https://www.linkedin.com/in/delatorrecj/) (outgoing, historical) |
+| 💻 **Development** | [Gerald Berongoy](https://www.linkedin.com/in/geraldberongoy) - Senior Backend Developer |
+| 🚀 **CTO** | [Carlos Jerico Dela Torre](https://www.linkedin.com/in/delatorrecj/) - Chief Technology Officer (2025-2026) |
 
 ## Support
 
 **Owner:** GDG PUP Technology (incoming CTO).  
-**Handover:** Outgoing CTO Carlos Jerico Dela Torre, 2026-09-02. See [docs/state.md](docs/state.md).
+**Handover:** 2026-09-02. See [docs/state.md](docs/state.md) and [FLAGS.md](FLAGS.md).
