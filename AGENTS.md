@@ -152,3 +152,9 @@ When updating docs, prefer **code and [docs/state.md](docs/state.md)** over olde
 - [Design](docs/design.md) - UI and certificate design system
 - [SQL scripts](docs/sql/README.md) - migrations, seeds, schema
 - [`.cursor/rules/`](.cursor/rules/) - Cursor agent rules (core, survey, cert pipeline, database, qa)
+
+## FMD
+
+**Built on FMD philosophy (v1.31.0)** - INDEX / STATE / FLAGS control plane; existing PRD/SDD/QA kept under current paths (no engine install).
+
+Read order stays: docs/state.md then docs/index.md then FLAGS.md then task docs.
