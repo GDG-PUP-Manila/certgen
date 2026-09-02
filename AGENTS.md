@@ -22,10 +22,10 @@ CertGen is a serverless Astro app that lets event attendees complete a post-even
 ## Architecture Rules
 
 ```
-pages/api/generate-cert.ts   →  certificateWorkflow.service.ts
+pages/api/generate-cert.ts   ->  certificateWorkflow.service.ts
                                       ├── repositories/*  (Supabase)
-                                      ├── cert-generator.tsx  (Satori → PNG overlay)
-                                      └── pdf.service.ts  (PDFKit → PDF)
+                                      ├── cert-generator.tsx  (Satori -> PNG overlay)
+                                      └── pdf.service.ts  (PDFKit -> PDF)
 ```
 
 - **API routes** validate and delegate - keep business logic in `src/services/`.
@@ -40,8 +40,8 @@ pages/api/generate-cert.ts   →  certificateWorkflow.service.ts
 | Path | Purpose |
 |------|---------|
 | `src/services/certificateWorkflow.service.ts` | End-to-end cert workflow; reads `survey.cert_config` |
-| `src/services/cert-generator.tsx` | Satori text overlay → transparent PNG |
-| `src/services/pdf.service.ts` | Background JPG + overlay → PDF |
+| `src/services/cert-generator.tsx` | Satori text overlay -> transparent PNG |
+| `src/services/pdf.service.ts` | Background JPG + overlay -> PDF |
 | `src/components/SurveyForm.tsx` | Multi-step schema-driven form engine |
 | `src/pages/survey/[slug].astro` | Dynamic survey page |
 | `src/pages/admin/**` | Admin UI (events, Visual Designer, responses) |
@@ -53,11 +53,11 @@ pages/api/generate-cert.ts   →  certificateWorkflow.service.ts
 
 ## Adding a New Event / Survey
 
-1. Export certificate background from Canva → PNG.
-2. Optimize template: PNG → JPEG (~quality 90, MozJPEG) → save as `public/templates/{slug}-optimized.jpg`.
+1. Export certificate background from Canva -> PNG.
+2. Optimize template: PNG -> JPEG (~quality 90, MozJPEG) -> save as `public/templates/{slug}-optimized.jpg`.
 3. Create and configure the event via the Admin Panel UI at `/admin/events/new`.
 4. Upload and configure the certificate parameters (template URL, alignment offset, text color) inside the Visual Designer at `/admin/events/{event_id}/survey` (persists `cert_config`).
-5. Tune alignment with `npm run test:pdf` → inspect `test/output/test-output.pdf`.
+5. Tune alignment with `npm run test:pdf` -> inspect `test/output/test-output.pdf`.
 
 Do **not** add slug `if` branches in `certificateWorkflow.service.ts`.
 

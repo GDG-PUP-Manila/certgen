@@ -1,11 +1,11 @@
-﻿# Documentation Index â€” CertGen
+﻿# Documentation Index - CertGen
 
 **Project:** GDG PUP Certificate Generator (`cert.gdgpup.org`)  
 **Owner:** GDG PUP Technology (incoming CTO)  
 **Last updated:** 2026-09-02  
 **Built on FMD philosophy (v1.31.0)** - INDEX / STATE / FLAGS control plane; existing PRD/SDD/QA kept under current paths (no engine install).
 
-Inventory of documentation that exists in this repository. Prefer [state.md](state.md) when product docs drift. Read order for agents: state â†’ this index â†’ [FLAGS.md](../FLAGS.md) â†’ task docs. See also the narrative [README.md](README.md).
+Inventory of documentation that exists in this repository. Prefer [state.md](state.md) when product docs drift. Read order for agents: state â†' this index â†' [FLAGS.md](../FLAGS.md) â†' task docs. See also the narrative [README.md](README.md).
 
 | Document | Path |
 | --- | --- |

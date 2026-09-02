@@ -78,7 +78,7 @@ Admin APIs under `src/pages/api/admin/` (login, logout, save-survey, upload-temp
 | Concern | Source |
 |---------|--------|
 | Landing event cards | Supabase `event` via `getAllEvents()` |
-| Survey routing | Supabase `survey.slug` → `/survey/{slug}` |
+| Survey routing | Supabase `survey.slug` -> `/survey/{slug}` |
 | Certificate layout | `survey.cert_config` |
 | Templates on disk / storage | `public/templates/` and/or Supabase Storage uploads from admin |
 
