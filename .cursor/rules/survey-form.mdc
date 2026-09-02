@@ -22,7 +22,7 @@ Schema-driven from `questions_schema.steps` in the Supabase database.
 window.dispatchEvent(new CustomEvent("show-toast", { detail: message }));
 ```
 
-Form state stays in React — safe to resubmit on failure.
+Form state stays in React - safe to resubmit on failure.
 
 ## Submit payload
 

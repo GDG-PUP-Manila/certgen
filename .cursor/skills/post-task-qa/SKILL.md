@@ -25,8 +25,8 @@ Reference: [docs/qa.md](../../docs/qa.md) · Script: [test/qa-smoke.mjs](../../t
 | If you changed… | Run |
 |-----------------|-----|
 | `cert-generator.tsx`, `pdf.service.ts`, `certificateWorkflow.service.ts`, `public/templates/` | `npm run test:pdf` (included in `test:qa`) |
-| `generate-cert.ts`, workflow, repositories | `npm run test:qa` — start dev server first if API tests needed |
-| `SurveyForm.tsx`, `survey/[slug].astro`, `data/survey.json` | Dev server + browser smoke on `/survey/{slug}` |
+| `generate-cert.ts`, workflow, repositories | `npm run test:qa` - start dev server first if API tests needed |
+| `SurveyForm.tsx`, `survey/[slug].astro` | Dev server + browser smoke on `/survey/{slug}` |
 | `docs/**` only | Skip automated QA; spot-check links |
 | New event (JSON + SQL + template + workflow) | Full [new-event checklist](../../docs/qa.md#6-new-event-launch-checklist) |
 | Release / deploy | [Release regression](../../docs/qa.md#7-release-regression-checklist) |
@@ -83,4 +83,4 @@ Include this in your final message:
 
 - Run `test/stress-test.mjs` unless the user explicitly requests load testing
 - Mark task complete with failing automated checks in your scope
-- Call Supabase from components (architecture violation — see AGENTS.md)
+- Call Supabase from components (architecture violation - see AGENTS.md)

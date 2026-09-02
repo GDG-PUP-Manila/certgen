@@ -1,8 +1,8 @@
-# Design — CertGen UI & Certificate Design System
+# Design - CertGen UI & Certificate Design System
 
 **Product:** GDG PUP Certificate Generator  
 **URL:** https://cert.gdgpup.org  
-**Last updated:** May 2026
+**Last updated:** 2026-09-02
 
 ---
 
@@ -38,9 +38,9 @@ Defined in `src/styles/global.css` and used across Astro/React components.
 | Event | Name Color | Notes |
 |-------|------------|-------|
 | Default / BWAI | `#1e293b` | Dark slate, neutral |
-| PM Workshop | `#073b1a` | Dark forest green — matches template titles |
+| PM Workshop | `#073b1a` | Dark forest green - matches template titles |
 
-Configured per slug in `certificateWorkflow.service.ts`.
+Configured per survey via `cert_config` (Admin Visual Designer), not hard-coded slug branches.
 
 ---
 
@@ -64,7 +64,7 @@ Satori settings (`cert-generator.tsx`):
 - `fontWeight: bold` (700)
 - `textAlign: center`
 
-Static certificate copy (titles, body, signatures) is **baked into the JPG template** — designed in Canva, not rendered by code.
+Static certificate copy (titles, body, signatures) is **baked into the JPG template** - designed in Canva, not rendered by code.
 
 ---
 
@@ -79,8 +79,8 @@ Static certificate copy (titles, body, signatures) is **baked into the JPG templ
 
 ### Landing Page (`index.astro`)
 
-- Event card grid sourced from `data/event.json`
-- Each card links to `/survey/{slug}` when survey exists in Supabase
+- Event card grid sourced from Supabase (`getAllEvents` / `getAllSurveys`)
+- Each card links to `/survey/{slug}` when a survey exists for the event
 - Glassmorphic white cards, rounded corners (`rounded-2xl` / `rounded-3xl`)
 
 ### Survey Form (`SurveyForm.tsx`)
@@ -147,16 +147,16 @@ Static certificate copy (titles, body, signatures) is **baked into the JPG templ
 
 ### Template Anatomy (Standard GDG Certificate)
 
-1. **Outer background** — branded gradient/pattern (dark theme per event)
-2. **Header badge** — GDG PUP logo + org name
-3. **Title block** — "CERTIFICATE" + "OF PARTICIPATION"
-4. **Certification line** — "THIS IS TO CERTIFY THAT"
-5. **Name line** — blank underline (name overlaid here by code)
-6. **Event description** — italic context line + bold event title
-7. **Body paragraph** — event value statement
-8. **Date line** — issuance date (static in template)
-9. **Signatures** — officer names/titles (static in template)
-10. **Footer graphic** — event-specific icon/emblem
+1. **Outer background** - branded gradient/pattern (dark theme per event)
+2. **Header badge** - GDG PUP logo + org name
+3. **Title block** - "CERTIFICATE" + "OF PARTICIPATION"
+4. **Certification line** - "THIS IS TO CERTIFY THAT"
+5. **Name line** - blank underline (name overlaid here by code)
+6. **Event description** - italic context line + bold event title
+7. **Body paragraph** - event value statement
+8. **Date line** - issuance date (static in template)
+9. **Signatures** - officer names/titles (static in template)
+10. **Footer graphic** - event-specific icon/emblem
 
 Only **#5 (participant name)** is dynamic.
 
@@ -199,9 +199,9 @@ node -e "const sharp=require('sharp'); sharp('public/templates/my-cert.png').jpe
 | Guideline | Target |
 |-----------|--------|
 | Format | JPEG (MozJPEG) |
-| Quality | ~88–90 |
+| Quality | ~88-90 |
 | Filename | `{event-slug}-optimized.jpg` |
-| File size | ~300–500 KB (vs 1–3 MB PNG) |
+| File size | ~300-500 KB (vs 1-3 MB PNG) |
 
 ### Per-Event Templates
 
@@ -218,7 +218,7 @@ Source PNGs (e.g. `pm-cert.png`) are design archives; production uses optimized 
 
 ## 7. Survey Schema Design
 
-Surveys are defined in JSON (`questions_schema`) — no code changes needed for copy updates.
+Surveys are defined in JSON (`questions_schema`) - no code changes needed for copy updates.
 
 ### Schema Structure
 
@@ -265,7 +265,7 @@ STATUS option[1] (Non-PUPian) → PERSONAL_INFO_NON_PUPIAN
 - Mobile-first form layout
 - Touch-friendly option cards and sliders
 - Logo scales: `h-10 w-10` mobile → `h-12 w-12` desktop
-- Certificate PDF is fixed A4 landscape (not responsive — print/download format)
+- Certificate PDF is fixed A4 landscape (not responsive - print/download format)
 
 ---
 
@@ -275,7 +275,7 @@ STATUS option[1] (Non-PUPian) → PERSONAL_INFO_NON_PUPIAN
 - Error messages via toast (visible, dismissible)
 - Attendance code validation with specific error text
 - Survey closed state: dedicated message, no broken form
-- Form state preserved on network failure — user can resubmit
+- Form state preserved on network failure - user can resubmit
 
 ---
 
@@ -283,12 +283,13 @@ STATUS option[1] (Non-PUPian) → PERSONAL_INFO_NON_PUPIAN
 
 - [ ] Canva certificate designed with name underline zone
 - [ ] PNG exported and optimized to JPG
-- [ ] JPG added to `public/templates/`
-- [ ] `topOffset` tuned — name centered on underline
+- [ ] JPG added to `public/templates/` (or uploaded via Admin)
+- [ ] Event + survey created in Admin UI
+- [ ] `cert_config` tuned in Visual Designer - name centered on underline
 - [ ] `textColor` matches template palette
-- [ ] Event card added to `data/event.json`
-- [ ] Survey schema written with consent + evaluation steps
+- [ ] Survey schema includes consent + evaluation steps
 - [ ] Test PDF generated and visually reviewed
+- [ ] Landing page shows the event from Supabase
 
 ---
 

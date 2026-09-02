@@ -10,15 +10,15 @@ Repositories are the **only** layer that talks to Supabase. Use `supabaseAdmin` 
 
 ## Canonical migration
 
-`docs/sql/migrations/SURVEY_MIGRATION.sql` — creates `survey` and `survey_response` with RLS. Code expects `survey_id` on responses.
+`docs/sql/migrations/SURVEY_MIGRATION.sql` - creates `survey` and `survey_response` with RLS. Code expects `survey_id` on responses.
 
 Run order: migrations → seeds. See [docs/sql/README.md](../../docs/sql/README.md).
 
 ## Key tables
 
-- `event` — platform-wide; referenced by `event_id`
-- `survey` — per-event config (`slug`, `attendance_code`, `questions_schema`, `is_active`, `close_time`)
-- `survey_response` — upserted by email + event_id (no unique DB constraint; app checks first)
+- `event` - platform-wide; referenced by `event_id`
+- `survey` - per-event config (`slug`, `attendance_code`, `questions_schema`, `cert_config`, `is_active`, `close_time`)
+- `survey_response` - upserted by email + event_id (no unique DB constraint; app checks first)
 
 ## Adding a survey
 

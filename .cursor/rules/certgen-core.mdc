@@ -16,13 +16,13 @@ pages/api/generate-cert.ts → certificateWorkflow.service.ts
   └── pdf.service.ts (JPG + PNG → PDF)
 ```
 
-- API routes validate and delegate — business logic lives in `src/services/`.
+- API routes validate and delegate - business logic lives in `src/services/`.
 - Never call Supabase from React components or Astro pages.
 - Keep `@resvg/resvg-js` as a Vite SSR external in `astro.config.mjs`.
 
 ## Env vars
 
-Use `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` (not `SUPABASE_KEY`).
+Use `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `ADMIN_PASSWORD` (not `SUPABASE_KEY`).
 
 ## Code style
 
