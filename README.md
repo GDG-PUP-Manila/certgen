@@ -134,9 +134,16 @@ certgen/
 
 ---
 
+## Contributors
+
+Built for [GDG PUP Manila](https://gdgpup.org) by:
+
+| Role | Contributor |
+| --- | --- |
+| Lead development | [Gerald S. Berongoy](https://www.linkedin.com/in/geraldberongoy/) |
+| CTO | [Carlos Jerico Dela Torre](https://www.linkedin.com/in/delatorrecj/) (outgoing, historical) |
+
 ## Support
 
 **Owner:** GDG PUP Technology (incoming CTO).  
 **Handover:** Outgoing CTO Carlos Jerico Dela Torre, 2026-09-02. See [docs/state.md](docs/state.md).
-
-Originally built with contributions from Gerald S. Berongoy for [GDG PUP Manila](https://gdgpup.org).
