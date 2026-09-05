@@ -4,39 +4,23 @@ CertGen is a hyper-fast, dynamically-scalable Serverless application built for G
 
 **Live:** https://cert.gdgpup.org
 
----
+## Table of Contents
 
-## Documentation
+- [About](#about)
+- [Core Features](#core-features)
+- [Quick start](#quick-start)
+- [The Architecture](#the-architecture)
+- [Deploying to Vercel](#deploying-to-vercel)
+- [Repository Structure](#repository-structure)
+- [Documentation](#documentation)
+- [Contributors](#contributors)
+- [Support](#support)
 
-| Document | Description |
-|----------|-------------|
-| [**Docs index**](docs/index.md) | Inventory of docs that exist (also [docs/README.md](docs/README.md)) |
-| [**Operational state**](docs/state.md) | **Operate** milestone - live URL, env vars, admin UI, handover |
-| [**FLAGS**](FLAGS.md) | Open improvement register (docs handover) |
-| [PRD](docs/prd.md) | Product requirements |
-| [SDD](docs/sdd.md) | Software design & architecture |
-| [Design](docs/design.md) | UI & certificate design system |
-| [AGENTS.md](AGENTS.md) | Guide for AI agents & contributors |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | PR checklist, setup, new-event workflow |
-| [API: generate-cert](docs/api/generate-cert.md) | Certificate endpoint contract |
-| [QA](docs/qa.md) | Test plans, release checklist, new-event launch QA |
-| [SQL scripts](docs/sql/README.md) | Database migrations, seeds, schema |
+## About
 
----
+CertGen is the GDG PUP Manila certificate and survey platform. Event attendees complete a post-event evaluation and receive a personalized PDF certificate. Operators manage events and templates through the admin UI.
 
-## The Architecture
-
-This project uses a **Serverless Node Architecture** on Vercel (not Edge - Resvg requires native bindings).
-
-- **Framework:** [Astro](https://astro.build/) (Server-Side Rendering via Vercel)
-- **Frontend / UI:** [React](https://react.dev/) + Tailwind CSS
-- **Database / Storage:** [Supabase](https://supabase.com/) (PostgREST + Storage bucket)
-- **Generation Engine:**
-  - `satori` - renders participant name as SVG
-  - `@resvg/resvg-js` - rasterizes to transparent PNG
-  - `pdfkit` - composites background JPG + name overlay into PDF
-
----
+**Live:** https://cert.gdgpup.org
 
 ## Core Features
 
@@ -58,9 +42,7 @@ This project uses a **Serverless Node Architecture** on Vercel (not Edge - Resvg
 - Name truncation to 40 characters
 - Optional GDG ID + email cross-validation
 
----
-
-## 🛠️ Getting Started (Local Development)
+## Quick start
 
 ### Prerequisites
 - [Node.js](https://nodejs.org/) v22.12.0+ (see `package.json`)
@@ -79,6 +61,8 @@ SUPABASE_SERVICE_ROLE_KEY="YOUR_SUPABASE_SERVICE_ROLE_KEY"
 ADMIN_PASSWORD="YOUR_ADMIN_PASSWORD"
 ```
 
+Secrets and ops detail: [FLAGS.md](FLAGS.md) and [docs/state.md](docs/state.md).
+
 ### 3. Run the Dev Server
 ```bash
 npm run dev
@@ -91,9 +75,19 @@ npm run test:pdf
 ```
 Outputs `test/output/test-output.pdf`. See [`test/README.md`](test/README.md).
 
----
+## The Architecture
 
-## 🌐 Deploying to Vercel
+This project uses a **Serverless Node Architecture** on Vercel (not Edge - Resvg requires native bindings).
+
+- **Framework:** [Astro](https://astro.build/) (Server-Side Rendering via Vercel)
+- **Frontend / UI:** [React](https://react.dev/) + Tailwind CSS
+- **Database / Storage:** [Supabase](https://supabase.com/) (PostgREST + Storage bucket)
+- **Generation Engine:**
+  - `satori` - renders participant name as SVG
+  - `@resvg/resvg-js` - rasterizes to transparent PNG
+  - `pdfkit` - composites background JPG + name overlay into PDF
+
+## Deploying to Vercel
 
 CertGen uses `@astrojs/vercel` (serverless Node) because `@resvg/resvg-js` cannot run on Edge functions.
 
@@ -102,9 +96,7 @@ CertGen uses `@astrojs/vercel` (serverless Node) because `@resvg/resvg-js` canno
 3. Set environment variables: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `ADMIN_PASSWORD`
 4. Deploy
 
----
-
-## 📁 Repository Structure
+## Repository Structure
 
 ```text
 certgen/
@@ -133,7 +125,21 @@ certgen/
 └── test/                        # Local test scripts & output
 ```
 
----
+## Documentation
+
+| Doc | Purpose |
+|-----|---------|
+| [State](docs/state.md) | Operate milestone - live URL, env vars, admin UI, handover |
+| [Index](docs/index.md) | Inventory of docs that exist (also [docs/README.md](docs/README.md)) |
+| [FLAGS](FLAGS.md) | Open improvement register (docs handover) |
+| [AGENTS](AGENTS.md) | Guide for AI agents and contributors |
+| [PRD](docs/prd.md) | Product requirements |
+| [SDD](docs/sdd.md) | Software design and architecture |
+| [Design](docs/design.md) | UI and certificate design system |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | PR checklist, setup, new-event workflow |
+| [API: generate-cert](docs/api/generate-cert.md) | Certificate endpoint contract |
+| [QA](docs/qa.md) | Test plans, release checklist, new-event launch QA |
+| [SQL scripts](docs/sql/README.md) | Database migrations, seeds, schema |
 
 ## Contributors
 
