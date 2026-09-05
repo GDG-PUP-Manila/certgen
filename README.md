@@ -1,5 +1,10 @@
 # GDG PUP Manila - Certificate Generator (CertGen)
 
+[![Status: Operate](https://img.shields.io/badge/Status-Operate-green)](docs/state.md)
+[![Stack: Next.js](https://img.shields.io/badge/Stack-Next.js-black)](#about)
+[![FMD philosophy: 1.31.0](https://img.shields.io/badge/FMD%20philosophy-1.31.0-blue)](AGENTS.md)
+
+
 CertGen is a hyper-fast, dynamically-scalable Serverless application built for Google Developer Groups (GDG) PUP Manila. It serves as a unified platform for attendees to submit their post-event evaluations (Surveys) and instantaneously generate high-fidelity, personalized PDF Certificates of Participation.
 
 **Live:** https://cert.gdgpup.org
@@ -7,6 +12,7 @@ CertGen is a hyper-fast, dynamically-scalable Serverless application built for G
 ## Table of Contents
 
 - [About](#about)
+- [Start here](#start-here)
 - [Core Features](#core-features)
 - [Quick start](#quick-start)
 - [The Architecture](#the-architecture)
@@ -21,6 +27,12 @@ CertGen is a hyper-fast, dynamically-scalable Serverless application built for G
 CertGen is the GDG PUP Manila certificate and survey platform. Event attendees complete a post-event evaluation and receive a personalized PDF certificate. Operators manage events and templates through the admin UI.
 
 **Live:** https://cert.gdgpup.org
+
+## Start here
+
+- **Humans:** this README, then [docs/state.md](docs/state.md)
+- **Agents:** [AGENTS.md](AGENTS.md) (state → index → FLAGS)
+- **Contributors:** table below
 
 ## Core Features
 
@@ -143,12 +155,12 @@ certgen/
 
 ## Contributors
 
-This project is made possible by the GDG PUP community:
+This project is made possible by the GDG PUP community.
 
-| Role | Name |
-| --- | --- |
-| 💻 **Development** | [Gerald Berongoy](https://www.linkedin.com/in/geraldberongoy) - Senior Backend Developer |
-| 🚀 **CTO** | [Carlos Jerico Dela Torre](https://www.linkedin.com/in/delatorrecj/) - Chief Technology Officer (2025-2026) |
+| Name | Role | GitHub |
+| --- | --- | --- |
+| [Carlos Jerico Dela Torre](https://www.linkedin.com/in/delatorrecj) | Chief Technology Officer (2025-2026) | [@delatorrecj](https://github.com/delatorrecj) |
+| [Gerald Berongoy](https://www.linkedin.com/in/geraldberongoy) | Senior Backend Developer / Web Development Learning Head | [@geraldsberongoy](https://github.com/geraldsberongoy) |
 
 ## Support
 
